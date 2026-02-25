@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4TheNorth Admin</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <span class="brand">4TheNorth</span>
+      <span class="badge">Admin</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user"><%= admin.username %></span>
+      <a href="/admin/settings" class="nav-link">Settings</a>
+      <a href="/admin/logout" class="nav-link">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-num"><%= stats.publishedToday %></div>
+        <div class="stat-label">Published Today</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num pending-num"><%= stats.pendingCount %></div>
+        <div class="stat-label">Pending Review</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num"><%= stats.totalSubscribers %></div>
+        <div class="stat-label">Subscribers</div>
+      </div>
+    </div>
+
+    <!-- ADD STORY SECTION -->
+    <div class="section">
+      <h2>Add Story</h2>
+      <div class="url-input-row">
+        <input type="url" id="urlInput" placeholder="Paste article URL here..." class="url-input">
+        <button id="processBtn" class="btn btn-primary" onclick="processUrl()">Process with AI</button>
+      </div>
+      <div id="processStatus" class="status-msg" style="display:none;"></div>
+    </div>
+
+    <!-- AI RESULT (hidden until URL is processed) -->
+    <div id="aiResult" class="section ai-result" style="display:none;">
+      <div class="ai-header">
+        <h2>AI Generated Options</h2>
+        <span id="aiConfidence" class="confidence-badge"></span>
+      </div>
+
+      <!-- Scraped metadata -->
+      <div class="scraped-meta">
+        <img id="storyImage" src="" alt="" class="story-thumb">
+        <div>
+          <div id="storyTitle" class="story-title"></div>
+          <div id="storySource" class="story-source"></div>
+          <div id="storyDesc" class="story-desc"></div>
+        </div>
+      </div>
+
+      <!-- AI Options -->
+      <div id="aiOptions" class="ai-options"></div>
+
+      <!-- Edit fields -->
+      <div class="edit-fields">
+        <div class="field-row">
+          <div class="field">
+            <label>Editorial Tag</label>
+            <input type="text" id="editTag" class="input" maxlength="50">
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select id="editCategory" class="input">
+              <option>News</option>
+              <option>Federal</option>
+              <option>Provincial</option>
+              <option>Economy</option>
+              <option>U.S. Politics</option>
+              <option>Healthcare</option>
+              <option>Climate & Energy</option>
+              <option>Opinion</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Commentary</label>
+          <input type="text" id="editCommentary" class="input" maxlength="140">
+        </div>
+        <div class="field-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="editFeatured"> Featured
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="editBreaking"> Breaking News
+          </label>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-row">
+        <button class="btn btn-publish" onclick="publishStory()">Publish Now</button>
+        <button class="btn btn-secondary" onclick="savePending()">Save as Pending</button>
+        <button class="btn btn-danger" onclick="rejectStory()">Reject</button>
+        <button class="btn btn-ghost" onclick="regenerateAI()">Regenerate AI</button>
+      </div>
+    </div>
+
+    <!-- STORY QUEUE -->
+    <div class="section">
+      <div class="queue-header">
+        <h2>Story Queue</h2>
+        <div class="tabs">
+          <button class="tab active" data-filter="all" onclick="filterStories('all', this)">All</button>
+          <button class="tab" data-filter="pending" onclick="filterStories('pending', this)">Pending</button>
+          <button class="tab" data-filter="published" onclick="filterStories('published', this)">Published</button>
+          <button class="tab" data-filter="rejected" onclick="filterStories('rejected', this)">Rejected</button>
+        </div>
+      </div>
+      <div id="storyQueue" class="story-queue">
+        <% stories.forEach(story => { %>
+          <div class="queue-card" data-id="<%= story.id %>" data-status="<%= story.status %>">
+            <div class="queue-card-top">
+              <% if (story.editorialTag) { %>
+                <span class="tag"><%= story.editorialTag %></span>
+              <% } %>
+              <span class="status status-<%= story.status %>"><%= story.status %></span>
+            </div>
+            <div class="queue-card-title"><%= story.originalTitle %></div>
+            <% if (story.commentary) { %>
+              <div class="queue-card-commentary"><em>Translation: <%= story.commentary %></em></div>
+            <% } %>
+            <div class="queue-card-meta">
+              <span><%= story.sourceName || 'Unknown' %></span>
+              <span><%= story.category || '' %></span>
+              <span><%= story.createdAt ? new Date(story.createdAt).toLocaleDateString() : '' %></span>
+            </div>
+            <div class="queue-card-actions">
+              <% if (story.status !== 'published') { %>
+                <button class="btn-sm btn-publish" onclick="quickPublish('<%= story.id %>')">Publish</button>
+              <% } %>
+              <% if (story.status === 'published') { %>
+                <button class="btn-sm btn-secondary" onclick="quickUnpublish('<%= story.id %>')">Unpublish</button>
+              <% } %>
+              <% if (story.status !== 'rejected') { %>
+                <button class="btn-sm btn-danger" onclick="quickReject('<%= story.id %>')">Reject</button>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+        <% if (stories.length === 0) { %>
+          <div class="empty-state">No stories yet. Paste a URL above to get started.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

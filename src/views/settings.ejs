@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - 4TheNorth Admin</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-left">
+      <a href="/admin" class="brand">4TheNorth</a>
+      <span class="badge">Settings</span>
+    </div>
+    <div class="nav-right">
+      <a href="/admin" class="nav-link">Dashboard</a>
+      <a href="/admin/logout" class="nav-link">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <% if (typeof saved !== 'undefined' || (typeof query !== 'undefined' && query.saved)) { %>
+      <div class="success-msg">Settings saved successfully.</div>
+    <% } %>
+
+    <div class="section">
+      <h2>AI System Prompt</h2>
+      <p class="help-text">This prompt is sent to Claude with every story. Edit it to change the editorial voice, tag list, or output format.</p>
+      <form method="POST" action="/admin/settings/prompt">
+        <textarea name="prompt" class="prompt-editor" rows="20"><%= aiPrompt %></textarea>
+        <div class="action-row">
+          <button type="submit" class="btn btn-primary">Save Prompt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
