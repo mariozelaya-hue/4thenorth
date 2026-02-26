@@ -7,159 +7,133 @@
   <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
-  <!-- NAV -->
   <nav class="nav">
-    <div class="nav-left">
-      <span class="brand">4TheNorth</span>
-      <span class="badge">Admin</span>
-    </div>
+    <div class="nav-left"><span class="brand">4TheNorth</span><span class="badge">Admin</span></div>
+    <div class="nav-center"><div class="global-search-wrap"><input type="text" id="globalSearchInput" class="global-search" placeholder="Search stories… (⌘K)"></div></div>
     <div class="nav-right">
+      <div class="nav-stats-mini"><span class="mini-stat"><span class="mini-dot dot-green"></span><span id="navPublished"><%= stats.publishedToday %></span> today</span><span class="mini-stat"><span class="mini-dot dot-amber"></span><span id="navPending"><%= stats.pendingCount %></span> pending</span></div>
       <span class="nav-user"><%= admin.username %></span>
       <a href="/admin/settings" class="nav-link">Settings</a>
-      <a href="/admin/logout" class="nav-link">Logout</a>
+      <a href="/admin/logout" class="nav-link nav-link-logout">Logout</a>
     </div>
   </nav>
-
-  <div class="container">
-    <!-- STATS BAR -->
-    <div class="stats-bar">
-      <div class="stat">
-        <div class="stat-num"><%= stats.publishedToday %></div>
-        <div class="stat-label">Published Today</div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Overview</div>
+        <div class="stat-card"><div class="stat-value green" id="statPublishedToday"><%= stats.publishedToday %></div><div class="stat-name">Published Today</div></div>
+        <div class="stat-card"><div class="stat-value amber" id="statPending"><%= stats.pendingCount %></div><div class="stat-name">Pending Review</div></div>
+        <div class="stat-card"><div class="stat-value" id="statTotal"><%= stats.totalStories %></div><div class="stat-name">Total Stories</div></div>
+        <div class="stat-card"><div class="stat-value blue" id="statSubs"><%= stats.totalSubscribers %></div><div class="stat-name">Subscribers</div></div>
       </div>
-      <div class="stat">
-        <div class="stat-num pending-num"><%= stats.pendingCount %></div>
-        <div class="stat-label">Pending Review</div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Status Filter</div>
+        <button class="sidebar-filter active" data-filter="all" onclick="setStatusFilter('all', this)"><span class="sf-dot all-dot"></span> All Stories</button>
+        <button class="sidebar-filter" data-filter="published" onclick="setStatusFilter('published', this)"><span class="sf-dot green-dot"></span> Published</button>
+        <button class="sidebar-filter" data-filter="pending" onclick="setStatusFilter('pending', this)"><span class="sf-dot amber-dot"></span> Pending</button>
+        <button class="sidebar-filter" data-filter="rejected" onclick="setStatusFilter('rejected', this)"><span class="sf-dot red-dot"></span> Rejected</button>
       </div>
-      <div class="stat">
-        <div class="stat-num"><%= stats.totalSubscribers %></div>
-        <div class="stat-label">Subscribers</div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Sort & Filter</div>
+        <select id="categoryFilter" class="sidebar-select" onchange="currentPage=1;loadStories()">
+          <option value="all">All Categories</option><option value="News">News</option><option value="Federal">Federal</option>
+          <option value="Provincial">Provincial</option><option value="Economy">Economy</option><option value="U.S. Politics">U.S. Politics</option>
+          <option value="Healthcare">Healthcare</option><option value="Climate &amp; Energy">Climate &amp; Energy</option><option value="Opinion">Opinion</option>
+        </select>
+        <select id="sortSelect" class="sidebar-select" onchange="currentPage=1;loadStories()">
+          <option value="newest">Newest First</option><option value="oldest">Oldest First</option>
+          <option value="source">By Source</option><option value="category">By Category</option>
+        </select>
       </div>
-    </div>
-
-    <!-- ADD STORY SECTION -->
-    <div class="section">
-      <h2>Add Story</h2>
-      <div class="url-input-row">
-        <input type="url" id="urlInput" placeholder="Paste article URL here..." class="url-input">
-        <button id="processBtn" class="btn btn-primary" onclick="processUrl()">Process with AI</button>
-      </div>
-      <div id="processStatus" class="status-msg" style="display:none;"></div>
-    </div>
-
-    <!-- AI RESULT (hidden until URL is processed) -->
-    <div id="aiResult" class="section ai-result" style="display:none;">
-      <div class="ai-header">
-        <h2>AI Generated Options</h2>
-        <span id="aiConfidence" class="confidence-badge"></span>
-      </div>
-
-      <!-- Scraped metadata -->
-      <div class="scraped-meta">
-        <img id="storyImage" src="" alt="" class="story-thumb">
-        <div>
-          <div id="storyTitle" class="story-title"></div>
-          <div id="storySource" class="story-source"></div>
-          <div id="storyDesc" class="story-desc"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">View</div>
+        <div class="view-toggle">
+          <button class="view-btn active" id="viewList" onclick="setView('list')">List</button>
+          <button class="view-btn" id="viewGrid" onclick="setView('grid')">Grid</button>
         </div>
       </div>
-
-      <!-- AI Options -->
-      <div id="aiOptions" class="ai-options"></div>
-
-      <!-- Edit fields -->
-      <div class="edit-fields">
-        <div class="field-row">
-          <div class="field">
-            <label>Editorial Tag</label>
-            <input type="text" id="editTag" class="input" maxlength="50">
-          </div>
-          <div class="field">
-            <label>Category</label>
-            <select id="editCategory" class="input">
-              <option>News</option>
-              <option>Federal</option>
-              <option>Provincial</option>
-              <option>Economy</option>
-              <option>U.S. Politics</option>
-              <option>Healthcare</option>
-              <option>Climate & Energy</option>
-              <option>Opinion</option>
-            </select>
+    </aside>
+    <main class="main">
+      <div class="add-story-bar">
+        <input type="url" id="urlInput" class="add-url-input" placeholder="Paste an article URL to process with AI…">
+        <button id="processBtn" class="btn-process" onclick="processUrl()">Process with AI</button>
+      </div>
+      <div id="processStatus" class="process-status" style="display:none;"></div>
+      <div id="aiResult" class="ai-panel" style="display:none;">
+        <div class="ai-panel-header">
+          <div class="ai-panel-title"><span class="ai-label">AI Draft</span><span id="aiConfidence" class="confidence-pill"></span></div>
+          <button class="ai-close" onclick="closeAiPanel()">×</button>
+        </div>
+        <div class="ai-meta-row">
+          <img id="storyImage" src="" alt="" class="ai-thumb" style="display:none;">
+          <div class="ai-meta-text"><div id="storyTitle" class="ai-story-title"></div><div id="storySource" class="ai-story-source"></div><div id="storyDesc" class="ai-story-desc"></div></div>
+        </div>
+        <div class="ai-options-label">Select an AI option</div>
+        <div id="aiOptions" class="ai-options-grid"></div>
+        <div class="ai-edit-grid">
+          <div class="field-group"><label class="field-label">Editorial Tag</label><input type="text" id="editTag" class="field-input" maxlength="50" placeholder="e.g. TRADE DEAL"></div>
+          <div class="field-group"><label class="field-label">Category</label><select id="editCategory" class="field-input field-select"><option>News</option><option>Federal</option><option>Provincial</option><option>Economy</option><option>U.S. Politics</option><option>Healthcare</option><option>Climate &amp; Energy</option><option>Opinion</option></select></div>
+          <div class="field-group full-width"><label class="field-label">Commentary <span class="char-counter"><span id="commentaryCount">0</span>/140</span></label><input type="text" id="editCommentary" class="field-input" maxlength="140" placeholder="Short editorial take…" oninput="updateCounter('editCommentary','commentaryCount')"></div>
+          <div class="field-group toggles-group"><label class="toggle-label"><input type="checkbox" id="editFeatured"> Featured</label><label class="toggle-label"><input type="checkbox" id="editBreaking"> Breaking</label></div>
+        </div>
+        <div class="ai-actions">
+          <button class="btn-regen-sm" onclick="regenerateAI()">↻ Regenerate AI</button>
+          <div class="ai-primary-actions">
+            <button class="btn-reject-sm" onclick="rejectStory()">Reject</button>
+            <button class="btn-pending-sm" onclick="savePending()">Save Pending</button>
+            <button class="btn-publish-sm" onclick="publishStory()">Publish Now</button>
           </div>
         </div>
-        <div class="field">
-          <label>Commentary</label>
-          <input type="text" id="editCommentary" class="input" maxlength="140">
-        </div>
-        <div class="field-row">
-          <label class="checkbox-label">
-            <input type="checkbox" id="editFeatured"> Featured
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" id="editBreaking"> Breaking News
-          </label>
-        </div>
       </div>
-
-      <!-- Action buttons -->
-      <div class="action-row">
-        <button class="btn btn-publish" onclick="publishStory()">Publish Now</button>
-        <button class="btn btn-secondary" onclick="savePending()">Save as Pending</button>
-        <button class="btn btn-danger" onclick="rejectStory()">Reject</button>
-        <button class="btn btn-ghost" onclick="regenerateAI()">Regenerate AI</button>
-      </div>
-    </div>
-
-    <!-- STORY QUEUE -->
-    <div class="section">
-      <div class="queue-header">
-        <h2>Story Queue</h2>
-        <div class="tabs">
-          <button class="tab active" data-filter="all" onclick="filterStories('all', this)">All</button>
-          <button class="tab" data-filter="pending" onclick="filterStories('pending', this)">Pending</button>
-          <button class="tab" data-filter="published" onclick="filterStories('published', this)">Published</button>
-          <button class="tab" data-filter="rejected" onclick="filterStories('rejected', this)">Rejected</button>
+      <div class="stories-header">
+        <div class="stories-title-row"><h2 class="stories-title">Stories <span class="stories-count" id="storiesCount"></span></h2></div>
+        <div id="bulkBar" class="bulk-bar" style="display:none;">
+          <span id="bulkCount">0 selected</span>
+          <button class="bulk-btn bulk-publish" onclick="bulkAction('publish')">Publish</button>
+          <button class="bulk-btn bulk-unpublish" onclick="bulkAction('unpublish')">Unpublish</button>
+          <button class="bulk-btn bulk-reject" onclick="bulkAction('reject')">Reject</button>
+          <button class="bulk-btn bulk-delete" onclick="bulkAction('delete')">Delete</button>
+          <button class="bulk-btn bulk-cancel" onclick="clearSelection()">Cancel</button>
         </div>
       </div>
-      <div id="storyQueue" class="story-queue">
-        <% stories.forEach(story => { %>
-          <div class="queue-card" data-id="<%= story.id %>" data-status="<%= story.status %>">
-            <div class="queue-card-top">
-              <% if (story.editorialTag) { %>
-                <span class="tag"><%= story.editorialTag %></span>
-              <% } %>
-              <span class="status status-<%= story.status %>"><%= story.status %></span>
-            </div>
-            <div class="queue-card-title"><%= story.originalTitle %></div>
-            <% if (story.commentary) { %>
-              <div class="queue-card-commentary"><em>Translation: <%= story.commentary %></em></div>
-            <% } %>
-            <div class="queue-card-meta">
-              <span><%= story.sourceName || 'Unknown' %></span>
-              <span><%= story.category || '' %></span>
-              <span><%= story.createdAt ? new Date(story.createdAt).toLocaleDateString() : '' %></span>
-            </div>
-            <div class="queue-card-actions">
-              <% if (story.status !== 'published') { %>
-                <button class="btn-sm btn-publish" onclick="quickPublish('<%= story.id %>')">Publish</button>
-              <% } %>
-              <% if (story.status === 'published') { %>
-                <button class="btn-sm btn-secondary" onclick="quickUnpublish('<%= story.id %>')">Unpublish</button>
-              <% } %>
-              <% if (story.status !== 'rejected') { %>
-                <button class="btn-sm btn-danger" onclick="quickReject('<%= story.id %>')">Reject</button>
-              <% } %>
-            </div>
-          </div>
-        <% }) %>
-        <% if (stories.length === 0) { %>
-          <div class="empty-state">No stories yet. Paste a URL above to get started.</div>
-        <% } %>
+      <div id="storyQueue" class="story-list"><div class="loading-state"><span class="spinner"></span> Loading…</div></div>
+      <div id="pagination" class="pagination" style="display:none;">
+        <button class="page-btn" id="prevPage" onclick="changePage(-1)">← Previous</button>
+        <span id="pageInfo" class="page-info"></span>
+        <button class="page-btn" id="nextPage" onclick="changePage(1)">Next →</button>
+      </div>
+    </main>
+  </div>
+  <div id="editModal" class="modal-overlay" style="display:none;" onclick="closeModalOnOverlay(event)">
+    <div class="modal">
+      <div class="modal-topbar">
+        <div class="modal-topbar-left"><span class="modal-heading">Edit Story</span><span id="modalStatusBadge" class="modal-status-badge"></span></div>
+        <div class="modal-topbar-right"><a id="modalSourceLink" href="#" target="_blank" class="modal-source-link" style="display:none;">↗ Source</a><button class="modal-close-btn" onclick="closeModal()">×</button></div>
+      </div>
+      <div id="modalImageRow" class="modal-image-row" style="display:none;">
+        <img id="modalThumb" src="" alt="" class="modal-thumb">
+        <div class="modal-source-info"><div id="modalSourceName" class="modal-source-name"></div><div id="modalCreatedAt" class="modal-created-at"></div><div id="modalPublishedAt" class="modal-published-at" style="display:none;"></div></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section"><label class="modal-label">Title</label><input type="text" id="modalTitle" class="modal-input" maxlength="300" placeholder="Article headline…"></div>
+        <div class="modal-row">
+          <div class="modal-section"><label class="modal-label">Editorial Tag</label><input type="text" id="modalTag" class="modal-input" maxlength="50" placeholder="e.g. TRADE WAR"></div>
+          <div class="modal-section"><label class="modal-label">Category</label><select id="modalCategory" class="modal-input modal-select"><option>News</option><option>Federal</option><option>Provincial</option><option>Economy</option><option>U.S. Politics</option><option>Healthcare</option><option>Climate &amp; Energy</option><option>Opinion</option></select></div>
+        </div>
+        <div class="modal-section"><label class="modal-label">Commentary <span class="char-counter"><span id="modalCommentaryCount">0</span>/140</span></label><textarea id="modalCommentary" class="modal-input modal-textarea" maxlength="140" rows="3" placeholder="Short editorial take…" oninput="updateCounter('modalCommentary','modalCommentaryCount')"></textarea></div>
+        <div class="modal-row">
+          <div class="modal-section"><label class="modal-label">Status</label><div class="status-btn-group"><button class="status-option" data-val="pending" onclick="setModalStatus('pending', this)">Pending</button><button class="status-option" data-val="published" onclick="setModalStatus('published', this)">Published</button><button class="status-option" data-val="rejected" onclick="setModalStatus('rejected', this)">Rejected</button></div><input type="hidden" id="modalStatus" value="pending"></div>
+          <div class="modal-section"><label class="modal-label">Flags</label><div class="modal-flags"><label class="flag-toggle"><input type="checkbox" id="modalFeatured"> Featured</label><label class="flag-toggle"><input type="checkbox" id="modalBreaking"> Breaking News</label></div></div>
+        </div>
+        <div class="modal-regen-row"><span class="modal-label">Regenerate AI</span><span class="modal-label-sub"> — Overwrites tag &amp; commentary with fresh AI output</span><button class="btn-regen" onclick="modalRegenerate()">↻ Run AI</button></div>
+      </div>
+      <div class="modal-footer">
+        <button class="mf-btn mf-delete" onclick="modalDelete()">Delete Story</button>
+        <div class="mf-right"><button class="mf-btn mf-cancel" onclick="closeModal()">Cancel</button><button class="mf-btn mf-save" onclick="saveModal()">Save Changes</button></div>
       </div>
     </div>
   </div>
-
+  <div id="toastContainer" class="toast-container"></div>
   <script src="/js/admin.js"></script>
 </body>
 </html>
