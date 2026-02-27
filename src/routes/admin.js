@@ -13,6 +13,37 @@ const audit = require('../services/audit');
 // =========================================================================
 
 // GET /admin/login - login page
+
+// Auto-calculate viral scores for all stories
+async function recalculateViralScores() {
+  try {
+    const stories = await prisma.story.findMany({
+      select: { id: true, views: true, likes: true, dislikes: true, isFeatured: true, isBreaking: true, publishedAt: true, createdAt: true }
+    });
+    if (stories.length === 0) return;
+
+    const maxViews = Math.max(...stories.map(s => s.views || 0), 1);
+    const maxLikes = Math.max(...stories.map(s => s.likes || 0), 1);
+    const now = Date.now();
+    const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
+
+    for (const s of stories) {
+      const viewScore = (s.views || 0) / maxViews;
+      const totalVotes = (s.likes || 0) + (s.dislikes || 0);
+      const likeScore = totalVotes > 0 ? (s.likes || 0) / totalVotes : 0.5;
+      const date = s.publishedAt || s.createdAt;
+      const age = now - new Date(date).getTime();
+      const recencyScore = Math.max(0, 1 - age / maxAge);
+      const flagBonus = (s.isFeatured ? 0.05 : 0) + (s.isBreaking ? 0.05 : 0);
+      const raw = (viewScore * 0.4) + (likeScore * 0.3) + (recencyScore * 0.2) + flagBonus;
+      const viral = Math.min(10, Math.max(0, parseFloat((raw * 10).toFixed(1))));
+      await prisma.story.update({ where: { id: s.id }, data: { viralScore: viral } });
+    }
+  } catch (err) {
+    console.error('Viral score calc error:', err);
+  }
+}
+
 router.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
@@ -61,12 +92,15 @@ router.get('/logout', (req, res) => {
 // GET /admin - main dashboard
 router.get('/', auth, async (req, res) => {
   try {
+    await recalculateViralScores();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [publishedToday, pendingCount, totalSubscribers, recentStories] = await Promise.all([
+    const [publishedToday, pendingCount, totalPublished, totalRejected, totalSubscribers, recentStories] = await Promise.all([
       prisma.story.count({ where: { status: 'published', publishedAt: { gte: today } } }),
       prisma.story.count({ where: { status: 'pending' } }),
+      prisma.story.count({ where: { status: 'published' } }),
+      prisma.story.count({ where: { status: 'rejected' } }),
       prisma.newsletterSubscriber.count({ where: { isActive: true } }),
       prisma.story.findMany({
         where: { status: { in: ['published', 'pending'] } },
@@ -75,9 +109,11 @@ router.get('/', auth, async (req, res) => {
       }),
     ]);
 
+    const totalStories = totalPublished + pendingCount + totalRejected;
+
     res.render('dashboard', {
       admin: req.admin,
-      stats: { publishedToday, pendingCount, totalSubscribers },
+      stats: { publishedToday, pendingCount, totalSubscribers, totalStories },
       stories: recentStories,
       tab: req.query.tab || 'all',
     });
@@ -94,22 +130,39 @@ router.get('/', auth, async (req, res) => {
 // GET /admin/stories - filtered story list (JSON)
 router.get('/stories', auth, async (req, res) => {
   try {
-    const status = req.query.status;
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = 20;
+    const { status, page: pageStr, search, category, sort } = req.query;
+    const page = Math.max(1, parseInt(pageStr) || 1);
+    const limit = 25;
 
     const where = {};
     if (status && status !== 'all') where.status = status;
+    if (category && category !== 'all') where.category = category;
+    if (search && search.trim()) {
+      where.OR = [
+        { originalTitle: { contains: search, mode: 'insensitive' } },
+        { editorialTag: { contains: search, mode: 'insensitive' } },
+        { sourceName: { contains: search, mode: 'insensitive' } },
+        { commentary: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
-    const stories = await prisma.story.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    let orderBy = { createdAt: 'desc' };
+    if (sort === 'oldest') orderBy = { createdAt: 'asc' };
+    if (sort === 'source') orderBy = { sourceName: 'asc' };
+    if (sort === 'category') orderBy = { category: 'asc' };
+    if (sort === 'most_viewed') orderBy = { views: 'desc' };
+    if (sort === 'most_liked') orderBy = { likes: 'desc' };
+    if (sort === 'viral_score') orderBy = { viralScore: 'desc' };
+    if (sort === 'source_date') orderBy = { sourcePublishedAt: 'desc' };
 
-    res.json({ stories });
+    const [stories, total] = await Promise.all([
+      prisma.story.findMany({ where, orderBy, skip: (page - 1) * limit, take: limit }),
+      prisma.story.count({ where }),
+    ]);
+
+    res.json({ stories, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
+    console.error('Load stories error:', err);
     res.status(500).json({ error: 'Failed to load stories' });
   }
 });
@@ -213,6 +266,25 @@ router.post('/stories/:id/regenerate', auth, async (req, res) => {
   }
 });
 
+
+// POST /admin/stories/recalculate-viral - recalculate all viral scores
+router.post('/stories/recalculate-viral', auth, async (req, res) => {
+  await recalculateViralScores();
+  res.json({ success: true });
+});
+
+// GET /admin/stories/:id - get single story
+router.get('/stories/:id', auth, async (req, res) => {
+  try {
+    const story = await prisma.story.findUnique({ where: { id: req.params.id } });
+    if (!story) return res.status(404).json({ error: 'Story not found' });
+    res.json({ story });
+  } catch (err) {
+    console.error('Get story error:', err);
+    res.status(500).json({ error: 'Failed to get story' });
+  }
+});
+
 // PUT /admin/stories/:id - update story
 router.put('/stories/:id', auth, async (req, res) => {
   try {
@@ -301,18 +373,20 @@ router.post('/settings/prompt', auth, async (req, res) => {
 // =========================================================================
 
 router.get('/stats', auth, async (req, res) => {
+  recalculateViralScores().catch(() => {});
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const [published, pending, rejected, subscribers] = await Promise.all([
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const [published, pending, rejected, publishedToday, subscribers] = await Promise.all([
       prisma.story.count({ where: { status: 'published' } }),
       prisma.story.count({ where: { status: 'pending' } }),
       prisma.story.count({ where: { status: 'rejected' } }),
+      prisma.story.count({ where: { status: 'published', publishedAt: { gte: todayStart } } }),
       prisma.newsletterSubscriber.count({ where: { isActive: true } }),
     ]);
 
-    res.json({ published, pending, rejected, subscribers });
+    const totalStories = published + pending + rejected;
+    res.json({ published, pending, rejected, publishedToday, pendingCount: pending, totalStories, subscribers });
   } catch (err) {
     res.status(500).json({ error: 'Failed to load stats' });
   }
