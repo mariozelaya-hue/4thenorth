@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CanadianPulse</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0a0b;--bg2:#111113;--bg3:#18181c;--bg4:#202025;
+  --border:#2a2a30;--border2:#333340;
+  --text:#e8e8ee;--text2:#888896;--text3:#555560;
+  --red:#e8354a;--red2:#ff4d62;--gold:#f5a623;--blue:#4a9eff;--green:#2ecc71;
+  --radius:12px;
+  --toggle-bg:var(--bg3);
+}
+/* LIGHT THEME */
+body.light{
+  --bg:#f5f5f7;--bg2:#ffffff;--bg3:#f0f0f2;--bg4:#e8e8ec;
+  --border:#d2d2d7;--border2:#c6c6cc;
+  --text:#1d1d1f;--text2:#6e6e73;--text3:#86868b;
+  --red:#e8354a;--red2:#ff4d62;--gold:#e09500;--blue:#0066cc;--green:#1fad54;
+  --toggle-bg:#e8e8ec;
+}
+body.light .post-card,body.light .x-card{box-shadow:0 0.5px 2px rgba(0,0,0,.06);}
+body.light .scard{box-shadow:0 0.5px 2px rgba(0,0,0,.06);}
+body.light .nl{box-shadow:0 0.5px 2px rgba(0,0,0,.06);}
+body.light .lprompt{background:linear-gradient(135deg,#fff,#f5f5f7);box-shadow:0 0.5px 2px rgba(0,0,0,.06);}
+body.light .dview{background:rgba(245,245,247,.85);}
+body.light .vc-overlay{background:linear-gradient(to top,rgba(0,0,0,.82) 0%,transparent 45%,rgba(0,0,0,.15) 100%);}
+body.light .header{background:rgba(245,245,247,.92);}
+body.light .sort-bar{background:rgba(245,245,247,.92);}
+body.light .mo .modal{box-shadow:0 8px 40px rgba(0,0,0,.15);}
+body.light .socbtn.apple{border-color:rgba(0,0,0,.12);}
+body.light .socbtn.apple:hover{border-color:rgba(0,0,0,.22);background:rgba(0,0,0,.03);}
+body.light .nl::before{background:var(--border);}
+body.light .sidebar-card{box-shadow:0 0.5px 2px rgba(0,0,0,.06);}
+
+/* THEME TOGGLE */
+.theme-toggle{
+  width:36px;height:36px;
+  background:var(--toggle-bg);border:1px solid var(--border);
+  cursor:pointer;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all 0.2s;flex-shrink:0;font-size:0.95rem;
+}
+.theme-toggle:hover{color:var(--text);border-color:var(--border2);}
+
+/* 3-COLUMN LAYOUT */
+.page-grid{
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr) 300px;
+  max-width:1280px;
+  margin:0 auto;
+  gap:0;
+  min-height:100vh;
+}
+@media(max-width:1100px){.page-grid{grid-template-columns:60px minmax(0,1fr) 280px;}}
+@media(max-width:860px){.page-grid{grid-template-columns:minmax(0,1fr);}}
+
+/* LEFT SIDEBAR */
+.left-sidebar{
+  position:sticky;top:56px;height:calc(100vh - 56px);
+  padding:1rem 0.75rem 1.5rem 1rem;
+  overflow-y:auto;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+@media(max-width:860px){.left-sidebar{display:none;}}
+@media(max-width:1100px){
+  .left-sidebar{padding:0.75rem 0.35rem;align-items:center;}
+  .left-sidebar .nav-label,.left-sidebar .nav-section-title,.left-sidebar .left-cta,.left-sidebar .left-cta-sub{display:none;}
+  .left-sidebar .nav-item{justify-content:center;padding:0.6rem;width:40px;height:40px;border-radius:10px;}
+}
+.nav-item{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.55rem 0.875rem;border-radius:10px;
+  color:var(--text2);font-size:0.875rem;font-weight:500;
+  cursor:pointer;transition:all 0.15s;text-decoration:none;
+  margin-bottom:0.125rem;
+}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{color:var(--text);font-weight:700;}
+.nav-item svg{flex-shrink:0;}
+.nav-label{white-space:nowrap;}
+.nav-section-title{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:0.75rem 0.875rem 0.375rem;margin-top:0.25rem;}
+.left-cta{
+  margin-top:auto;
+  background:var(--red);color:#fff;border:none;border-radius:24px;
+  padding:0.75rem;font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:700;
+  cursor:pointer;width:100%;transition:all 0.2s;text-align:center;
+}
+.left-cta:hover{background:var(--red2);transform:translateY(-1px);}
+.left-cta-sub{font-size:0.68rem;color:var(--text3);text-align:center;margin-top:0.5rem;}
+
+/* RIGHT SIDEBAR */
+.right-sidebar{
+  position:sticky;top:100px;height:fit-content;max-height:calc(100vh - 120px);
+  padding:0 1rem 1.5rem 0;
+  overflow-y:auto;
+}
+@media(max-width:860px){.right-sidebar{display:none;}}
+.sidebar-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:0.75rem;
+}
+.sidebar-card-header{
+  padding:0.75rem 0.875rem;font-weight:700;font-size:0.85rem;
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;
+}
+.sidebar-card-header svg{flex-shrink:0;}
+.trending-item{
+  padding:0.5rem 0.875rem;cursor:pointer;transition:background 0.15s;
+  border-bottom:1px solid var(--border);
+}
+.trending-item:last-child{border-bottom:none;}
+.trending-item:hover{background:var(--bg3);}
+.trending-label{font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;}
+.trending-topic{font-size:0.825rem;font-weight:700;margin:0.15rem 0;line-height:1.3;}
+.trending-posts{font-size:0.68rem;color:var(--text3);}
+.community-item{
+  display:flex;align-items:center;gap:0.625rem;
+  padding:0.5rem 0.875rem;cursor:pointer;transition:background 0.15s;
+  border-bottom:1px solid var(--border);
+}
+.community-item:last-child{border-bottom:none;}
+.community-item:hover{background:var(--bg3);}
+.community-icon{width:32px;height:32px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;border:1px solid var(--border2);}
+.community-name{font-size:0.8rem;font-weight:600;}
+.community-count{font-size:0.68rem;color:var(--text3);}
+.sidebar-join{
+  display:block;width:calc(100% - 1.75rem);margin:0.625rem auto;
+  padding:0.5rem;text-align:center;
+  background:transparent;border:1px solid var(--border2);border-radius:20px;
+  color:var(--text2);font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:600;
+  cursor:pointer;transition:all 0.15s;
+}
+.sidebar-join:hover{background:var(--bg3);color:var(--text);border-color:var(--text3);}
+.sidebar-mini-nl{padding:0.875rem;}
+.sidebar-mini-nl .nl-title{font-size:1rem;margin-bottom:0.375rem;}
+.sidebar-mini-nl .nl-sub{font-size:0.75rem;margin-bottom:0.75rem;}
+.sidebar-mini-nl .nl-form{flex-direction:column;gap:0.375rem;}
+.sidebar-mini-nl .nl-input{padding:0.55rem 0.75rem;font-size:0.8rem;}
+.sidebar-mini-nl .nl-btn{padding:0.55rem;font-size:0.8rem;}
+.sidebar-footer{font-size:0.65rem;color:var(--text3);line-height:1.6;padding:0.5rem 0;}
+.sidebar-footer a{color:var(--text3);text-decoration:none;}
+.sidebar-footer a:hover{text-decoration:underline;}
+
+/* CENTER FEED — override old container */
+html{scroll-behavior:smooth;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* HEADER */
+.header{background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;padding:0 1rem;}
+.header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:0.75rem;height:56px;}
+.logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--text2);text-decoration:none;letter-spacing:-0.02em;flex-shrink:0;transition:color 0.2s;}
+.logo:hover{color:var(--text);}
+.header-spacer{flex:1;}
+.search-icon-btn{
+  width:36px;height:36px;
+  background:transparent;border:none;
+  cursor:pointer;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all 0.15s;flex-shrink:0;
+}
+.search-icon-btn:hover{color:var(--text);background:var(--bg3);}
+.hbtns{display:flex;gap:0.5rem;flex-shrink:0;}
+.btn-red{padding:0.45rem 1rem;background:var(--red);border:none;border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.btn-red:hover{background:var(--red2);transform:translateY(-1px);}
+.btn-outline{padding:0.45rem 1rem;background:transparent;border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.btn-outline:hover{border-color:var(--text);color:var(--text);background:var(--bg3);}
+
+/* SEARCH OVERLAY */
+.search-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(12px);
+  display:none;align-items:flex-start;justify-content:center;
+  padding-top:4rem;
+}
+.search-overlay.open{display:flex;animation:fadeIn 0.15s ease;}
+.search-overlay-inner{width:100%;max-width:600px;padding:0 1rem;}
+.search-input-wrap{position:relative;}
+.search-overlay-input{
+  width:100%;padding:1rem 3rem 1rem 1.25rem;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:14px;color:var(--text);
+  font-family:'Sora',sans-serif;font-size:1rem;
+  outline:none;transition:border-color 0.2s;
+}
+.search-overlay-input:focus{border-color:var(--text3);}
+.search-overlay-input::placeholder{color:var(--text3);}
+.search-close-btn{
+  position:absolute;right:0.875rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--text3);
+  font-size:1.1rem;transition:color 0.15s;
+}
+.search-close-btn:hover{color:var(--text);}
+.search-hint{font-size:0.75rem;color:var(--text3);margin-top:0.75rem;text-align:center;}
+
+/* SORT */
+.sort-bar{background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1rem;position:sticky;top:56px;z-index:190;}
+.sort-inner{max-width:100%;margin:0;display:flex;gap:0.25rem;height:44px;align-items:center;}
+.sort-btn{padding:0.4rem 0.875rem;border:none;background:transparent;color:var(--text2);font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;border-radius:20px;transition:all 0.15s;display:flex;align-items:center;gap:0.35rem;}
+.sort-btn:hover{background:var(--bg3);color:var(--text);}
+.sort-btn.active{background:var(--bg3);color:var(--text);}
+
+/* FEED */
+.container{max-width:100%;margin:0;padding:0.75rem 0.75rem 4rem;}
+.feed{display:flex;flex-direction:column;gap:0.5rem;}
+
+
+
+/* CARDS */
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color 0.15s,transform 0.1s;}
+.post-card:hover{border-color:var(--border2);}
+.post-card:active{transform:scale(0.998);}
+.x-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+
+/* X CARD HEADER */
+.xch{padding:0.875rem 1rem 0.75rem;display:flex;align-items:center;gap:0.75rem;border-bottom:1px solid var(--border);}
+.xicon{width:32px;height:32px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--text2);flex-shrink:0;}
+.xct{font-size:0.85rem;font-weight:700;}
+.xcs{font-size:0.7rem;color:var(--text2);}
+.badge-hot{margin-left:auto;flex-shrink:0;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:10px;letter-spacing:0.03em;text-transform:uppercase;}
+.xbody{padding:1rem;}
+.xauthor{display:flex;align-items:center;gap:0.625rem;margin-bottom:0.75rem;}
+.xav{width:40px;height:40px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--text2);flex-shrink:0;}
+.xname{font-size:0.875rem;font-weight:700;}
+.xhandle{font-size:0.75rem;color:var(--text2);}
+.xcheck{color:var(--blue);font-size:0.75rem;margin-left:3px;}
+.xtweet{font-size:1rem;line-height:1.6;margin-bottom:1rem;}
+.xstats{display:flex;gap:1.25rem;font-size:0.8rem;color:var(--text2);padding-top:0.75rem;border-top:1px solid var(--border);}
+.xstat{display:flex;align-items:center;gap:0.3rem;cursor:pointer;transition:color 0.15s;}
+.xstat:hover{color:var(--text);}
+
+/* POST CONTENT */
+.pc{padding:0.875rem 1rem;}
+.pmeta{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-size:0.72rem;color:var(--text2);margin-bottom:0.625rem;}
+.tag{padding:0.15rem 0.55rem;border:1px solid var(--border2);border-radius:10px;font-weight:700;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text2);}
+.tag.hot{border-color:rgba(232,53,74,0.4);color:var(--red);background:rgba(232,53,74,0.08);}
+.tag.live{border-color:rgba(46,204,113,0.4);color:var(--green);background:rgba(46,204,113,0.08);animation:livepulse 2s infinite;}
+.tag.breaking{border-color:rgba(245,166,35,0.4);color:var(--gold);background:rgba(245,166,35,0.08);}
+.tag.promoted{background:var(--red);color:#fff;border-color:var(--red);}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.score{margin-left:auto;font-size:0.65rem;font-weight:700;color:var(--text3);}
+.ptitle{font-size:1.025rem;font-weight:700;line-height:1.4;color:var(--text);margin-bottom:0.75rem;letter-spacing:-0.01em;}
+
+/* MEDIA */
+.media{width:100%;background:var(--bg3);border-radius:8px;overflow:hidden;margin-bottom:0.875rem;}
+.media img{width:100%;height:100%;object-fit:cover;display:block;}
+.ratio-wide{aspect-ratio:16/9;}
+.ratio-sq{aspect-ratio:1/1;}
+.ratio-tall{aspect-ratio:9/16;max-height:600px;}
+.ratio-ultra{aspect-ratio:3/1;max-height:280px;}
+.ratio-land{aspect-ratio:4/3;}
+.ratio-port{aspect-ratio:2/3;max-height:580px;}
+
+/* VIDEO */
+.vc{width:100%;background:#000;border-radius:8px;overflow:hidden;margin-bottom:0.875rem;position:relative;aspect-ratio:16/9;cursor:pointer;}
+.vc-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:opacity 0.3s;}
+.vc-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 45%, rgba(0,0,0,0.18) 100%);z-index:2;transition:opacity 0.2s;}
+.vc.playing .vc-overlay{opacity:0;}
+.vc.playing:hover .vc-overlay{opacity:1;}
+.vc-top{display:flex;align-items:center;justify-content:space-between;padding:0.75rem;}
+.vc-livebadge{background:var(--red);color:#fff;font-size:0.65rem;font-weight:800;padding:0.2rem 0.5rem;border-radius:6px;letter-spacing:0.06em;display:flex;align-items:center;gap:0.3rem;}
+.livdot{width:6px;height:6px;background:#fff;border-radius:50%;animation:blink 1s infinite;}
+.vc-views{background:rgba(0,0,0,0.6);color:rgba(255,255,255,0.85);font-size:0.7rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:6px;}
+.vc-playbtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;width:62px;height:62px;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.vc.playing .vc-playbtn{opacity:0;}
+.vc:hover .vc-playbtn{background:rgba(255,255,255,0.25);}
+.play-tri{width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid white;margin-left:4px;}
+.vc-duration{position:absolute;bottom:3.5rem;right:0.75rem;z-index:4;background:rgba(0,0,0,0.75);color:#fff;font-size:0.7rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:4px;}
+.vc-bottom{padding:0.75rem 0.875rem 0.875rem;z-index:2;}
+.vc-title{font-size:0.875rem;font-weight:700;color:#fff;line-height:1.35;text-shadow:0 1px 4px rgba(0,0,0,0.8);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.vc-progress{width:100%;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin-top:0.625rem;cursor:pointer;position:relative;}
+.vc-fill{height:100%;background:var(--red);border-radius:2px;width:0%;transition:width 0.1s linear;}
+.vc-controls{display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem;}
+.vcbtn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:0.9rem;padding:0;transition:color 0.15s;line-height:1;}
+.vcbtn:hover{color:#fff;}
+.vctime{font-size:0.72rem;color:rgba(255,255,255,0.6);font-weight:600;}
+
+/* COMPACT */
+.compact-wrap{display:flex;gap:0.75rem;align-items:flex-start;}
+.compact-left{flex:1;min-width:0;}
+.compact-thumb{width:110px;height:74px;border-radius:8px;overflow:hidden;background:var(--bg3);flex-shrink:0;}
+.compact-thumb img{width:100%;height:100%;object-fit:cover;}
+.ctitle{font-size:0.9rem;font-weight:700;line-height:1.4;color:var(--text);margin-bottom:0.5rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* TEXT PREVIEW */
+.tpreview{font-size:0.875rem;line-height:1.65;color:var(--text2);margin-bottom:0.875rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ACTION BAR */
+.abar{display:flex;align-items:center;gap:0.375rem;padding-top:0.125rem;}
+
+/* HEART — outline SVG, no down arrow */
+.hpill{display:flex;align-items:center;gap:0.375rem;background:var(--bg3);border:1px solid var(--border);border-radius:20px;height:34px;padding:0 0.75rem;transition:border-color 0.15s;cursor:pointer;}
+.hpill:hover{border-color:var(--border2);}
+.hbtn{background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;color:var(--text2);transition:all 0.15s;}
+.hbtn:hover{color:var(--red);}
+.hbtn.liked{color:var(--red);animation:hpop 0.3s ease;}
+.hbtn.liked .hsvg{fill:var(--red);}
+.hsvg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;transition:all 0.2s;}
+@keyframes hpop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.hcount{font-size:0.8rem;font-weight:700;min-width:1.75rem;text-align:center;color:var(--text);}
+
+/* COMMENT PILL — outline speech bubble */
+.cpill{display:flex;align-items:center;gap:0.4rem;background:var(--bg3);border:1px solid var(--border);border-radius:20px;height:34px;padding:0 0.75rem;font-size:0.8rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.cpill:hover{background:var(--bg4);color:var(--text);border-color:var(--border2);}
+.csv{stroke:currentColor;fill:none;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;flex-shrink:0;}
+
+/* SHARE / SAVE */
+.abtn{display:flex;align-items:center;gap:0.35rem;background:var(--bg3);border:1px solid var(--border);border-radius:20px;height:34px;padding:0 0.75rem;color:var(--text2);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:'Sora',sans-serif;}
+.abtn:hover{background:var(--bg4);color:var(--text);border-color:var(--border2);}
+.abtn.shared{color:var(--green);border-color:rgba(46,204,113,0.3);}
+.abtn.saved{color:var(--gold);border-color:rgba(245,166,35,0.3);}
+.ml{margin-left:auto;}
+.ehint{font-size:0.7rem;color:var(--text3);margin-top:0.5rem;}
+.post-card.expanded .ehint{display:none;}
+
+/* EXPAND */
+.dview{display:none;border-top:1px solid var(--border);background:rgba(8,8,10,0.7);padding:1rem;animation:fadeIn 0.2s ease;}
+.post-card.expanded .dview{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.slist{list-style:none;display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;}
+.slist li{padding-left:1.125rem;position:relative;font-size:0.875rem;line-height:1.6;}
+.slist li::before{content:"—";position:absolute;left:0;color:var(--text3);}
+.cpreview{margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;}
+.cmt{background:var(--bg3);border-radius:8px;padding:0.75rem;}
+.cmt-auth{font-weight:700;font-size:0.75rem;color:var(--text2);margin-bottom:0.25rem;}
+.cmt-txt{font-size:0.8rem;line-height:1.5;color:var(--text2);}
+.cmt-acts{display:flex;gap:0.75rem;margin-top:0.5rem;font-size:0.72rem;color:var(--text3);}
+.cmt-acts span{cursor:pointer;transition:color 0.15s;}
+.cmt-acts span:hover{color:var(--text);}
+.rbar{display:flex;gap:0.5rem;margin-top:0.75rem;}
+.rinput{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:0.5rem 0.875rem;color:var(--text);font-family:'Sora',sans-serif;font-size:0.8rem;outline:none;transition:border-color 0.2s;}
+.rinput:focus{border-color:var(--red);}
+.rinput::placeholder{color:var(--text3);}
+.rbtn{padding:0.5rem 0.875rem;background:var(--red);border:none;border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;flex-shrink:0;}
+.rbtn:hover{background:var(--red2);}
+
+/* SPONSORED */
+.scard{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;}
+.scard-img img{width:100%;height:auto;display:block;}
+.scard-foot{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--bg);border-top:1px solid var(--border);}
+.scard-dom{font-size:0.8rem;color:var(--text2);}
+.scard-cta{padding:0.45rem 1rem;border:1px solid var(--border2);border-radius:20px;background:transparent;color:var(--text);font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
+.scard-cta:hover{background:var(--bg3);}
+
+/* DIVIDERS */
+.slabel{display:flex;align-items:center;gap:0.75rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);padding:0.5rem 0.25rem;}
+.slabel::before,.slabel::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* LOGIN PROMPT */
+.lprompt{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem;text-align:center;}
+.lpicon{font-size:2rem;margin-bottom:0.75rem;}
+.lptitle{font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:0.5rem;}
+.lpsub{font-size:0.8rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.5;}
+.lpbtns{display:flex;gap:0.5rem;justify-content:center;}
+
+/* NEWSLETTER */
+.nl{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem 1.25rem;position:relative;overflow:hidden;}
+.nl::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border2);}
+.nl-icon{font-size:1.75rem;margin-bottom:0.875rem;}
+.nl-title{font-family:'DM Serif Display',serif;font-size:1.4rem;line-height:1.3;margin-bottom:0.625rem;}
+.nl-sub{font-size:0.85rem;color:var(--text2);line-height:1.55;margin-bottom:1.25rem;}
+.nl-form{display:flex;gap:0.5rem;}
+.nl-input{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:0.75rem 1rem;color:var(--text);font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+.nl-input:focus{border-color:var(--text3);}
+.nl-input::placeholder{color:var(--text3);}
+.nl-btn{padding:0.75rem 1.25rem;background:var(--red);border:none;border-radius:10px;color:#fff;font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.nl-btn:hover{background:var(--red2);}
+.nl-note{font-size:0.7rem;color:var(--text3);margin-top:0.875rem;}
+
+
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;}
+.mo.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:400px;overflow:hidden;animation:slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.moh{padding:1.25rem 1.25rem 0;display:flex;justify-content:space-between;align-items:flex-start;}
+.mot{font-family:'DM Serif Display',serif;font-size:1.4rem;line-height:1.2;}
+.mot span{color:var(--red);}
+.mot-sub{font-size:0.78rem;color:var(--text3);margin-top:0.2rem;}
+.mox{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--text2);transition:all 0.15s;flex-shrink:0;}
+.mox:hover{background:var(--bg4);color:var(--text);}
+.mob{padding:1.25rem;}
+
+/* Tab switcher */
+.motabs{display:flex;background:var(--bg3);border-radius:10px;padding:0.25rem;margin-bottom:1.25rem;}
+.motab{flex:1;padding:0.5rem;text-align:center;font-size:0.8rem;font-weight:600;border-radius:8px;cursor:pointer;transition:all 0.2s;color:var(--text2);}
+.motab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+
+/* Social buttons — HERO */
+.socbtn{
+  width:100%;padding:0.875rem 1rem;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:12px;cursor:pointer;
+  display:flex;align-items:center;gap:0.875rem;
+  font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);
+  transition:all 0.2s;margin-bottom:0.625rem;
+  position:relative;
+}
+.socbtn:hover{background:var(--bg4);border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.socbtn:last-of-type{margin-bottom:0;}
+.socbtn-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.socbtn-label{flex:1;text-align:left;}
+.socbtn-arrow{color:var(--text3);font-size:0.8rem;margin-left:auto;}
+.socbtn.google{border-color:rgba(66,133,244,0.25);}
+.socbtn.google:hover{border-color:rgba(66,133,244,0.5);background:rgba(66,133,244,0.05);}
+.socbtn.apple{border-color:rgba(255,255,255,0.12);}
+.socbtn.apple:hover{border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.04);}
+.socbtn.facebook{border-color:rgba(24,119,242,0.25);}
+.socbtn.facebook:hover{border-color:rgba(24,119,242,0.5);background:rgba(24,119,242,0.05);}
+
+/* Email expand toggle */
+.email-toggle{
+  width:100%;padding:0.75rem 1rem;
+  background:transparent;border:1px dashed var(--border2);
+  border-radius:12px;cursor:pointer;
+  display:flex;align-items:center;gap:0.875rem;
+  font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:600;color:var(--text2);
+  transition:all 0.2s;margin-top:0.625rem;
+}
+.email-toggle:hover{border-color:var(--text3);color:var(--text);background:var(--bg3);}
+.email-toggle-icon{font-size:1rem;flex-shrink:0;}
+.email-toggle-chevron{margin-left:auto;font-size:0.8rem;transition:transform 0.25s;color:var(--text3);}
+.email-toggle.open .email-toggle-chevron{transform:rotate(180deg);}
+
+/* Expandable email form */
+.email-form-wrap{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+  opacity:0;
+}
+.email-form-wrap.open{max-height:400px;opacity:1;}
+.email-form-inner{padding-top:0.75rem;display:flex;flex-direction:column;gap:0.625rem;}
+.mof{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:0.75rem 1rem;color:var(--text);font-family:'Sora',sans-serif;font-size:0.875rem;outline:none;transition:border-color 0.2s;}
+.mof:focus{border-color:var(--red);}
+.mof::placeholder{color:var(--text3);}
+.mosub{width:100%;padding:0.875rem;background:var(--red);border:none;border-radius:10px;color:#fff;font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.125rem;}
+.mosub:hover{background:var(--red2);}
+
+.modiv{display:flex;align-items:center;gap:0.75rem;font-size:0.72rem;color:var(--text3);margin:1rem 0 0.875rem;}
+.modiv::before,.modiv::after{content:'';flex:1;height:1px;background:var(--border);}
+.moterms{font-size:0.7rem;color:var(--text3);text-align:center;line-height:1.6;margin-top:1rem;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;color:var(--text);z-index:2000;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){
+  .btn-outline{display:none;}
+  .compact-thumb{width:90px;height:62px;}
+  .nl-form{flex-direction:column;}
+  .lpbtns{flex-direction:column;}
+}
+
+/* TRANSLATION COMMENTARY */
+.tr-line{
+  font-size:0.72rem;
+  line-height:1.4;
+  color:var(--text3);
+  margin-top:-0.25rem;
+  margin-bottom:0.7rem;
+  font-style:italic;
+  padding-left:0;
+}
+
+/* Comment section */
+.comment-section{padding:1rem 1.25rem;border-top:1px solid var(--border);background:var(--bg2);}
+.comment-count-label{font-size:0.8rem;font-weight:700;color:var(--text2);margin-bottom:0.75rem;}
+.comment-list{display:flex;flex-direction:column;gap:0;}
+.comment-item{display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--border);}
+.comment-item:last-child{border-bottom:none;}
+.comment-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#e8354a,#c82d3e);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0;}
+.comment-body-wrap{flex:1;min-width:0;}
+.comment-header{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;}
+.comment-author{font-size:0.8rem;font-weight:700;color:var(--text);}
+.comment-time{font-size:0.72rem;color:var(--text3);}
+.comment-text{font-size:0.875rem;color:var(--text2);line-height:1.5;margin-bottom:0.4rem;}
+.comment-actions{display:flex;align-items:center;gap:0.5rem;}
+.comment-vote{display:flex;align-items:center;gap:0.25rem;background:var(--bg3);border-radius:20px;padding:0.2rem 0.4rem;}
+.comment-vote-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:0.8rem;padding:0.1rem 0.25rem;transition:color 0.15s;line-height:1;}
+.comment-vote-btn.up:hover,.comment-vote-btn.up.active{color:#ff6314;}
+.comment-vote-btn.down:hover,.comment-vote-btn.down.active{color:#7193ff;}
+.comment-vote-count{font-size:0.75rem;font-weight:700;color:var(--text2);min-width:1rem;text-align:center;}
+.comment-reply-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:0.75rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:20px;transition:all 0.15s;}
+.comment-reply-btn:hover{background:var(--bg3);color:var(--text);}
+.comment-input-row{display:flex;gap:0.5rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);}
+.comment-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:0.5rem 1rem;color:var(--text);font-size:0.875rem;outline:none;}
+.comment-input:focus{border-color:var(--border2);}
+.comment-submit{background:#e8354a;color:#fff;border:none;border-radius:20px;padding:0.5rem 1.25rem;font-size:0.8rem;font-weight:700;cursor:pointer;}
+.comment-submit:hover{background:#c82d3e;}
+.comment-empty{color:var(--text3);font-size:0.875rem;text-align:center;padding:1rem 0;}
+
+.share-menu{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:0.4rem;min-width:190px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.share-menu-item{display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;border-radius:8px;cursor:pointer;color:var(--text2);font-size:0.875rem;font-weight:500;transition:all 0.15s;}
+.share-menu-item:hover{background:var(--bg3);color:var(--text);}
+.share-menu-divider{height:1px;background:var(--border);margin:0.3rem 0;}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">CanadianPulse</a>
+    <div class="header-spacer"></div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><span id="themeIcon">☀️</span></button>
+    <button class="search-icon-btn" onclick="openSearch()" title="Search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+    <div class="hbtns">
+      <button class="btn-outline" onclick="openModal('login')">Log In</button>
+      <button class="btn-red" onclick="openModal('signup')">Join Free</button>
+    </div>
+  </div>
+</header>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-overlay-inner">
+    <div class="search-input-wrap">
+      <input class="search-overlay-input" id="searchInput" placeholder="Search Canada's news…" type="text" autofocus>
+      <button class="search-close-btn" onclick="closeSearch()">✕</button>
+    </div>
+    <div class="search-hint">Press Enter to search · Esc to close</div>
+  </div>
+</div>
+
+<div class="page-grid">
+
+<!-- LEFT SIDEBAR -->
+<aside class="left-sidebar">
+  <a class="nav-item active" href="#" onclick="event.preventDefault();filterTopic('all',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+  <a class="nav-item" style="display:none" href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg><span class="nav-label">Trending</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();openSearch()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span class="nav-label">Explore</span></a>
+  <a class="nav-item" style="display:none" href="#" onclick="event.preventDefault();requireLogin(()=>{})"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><span class="nav-label">Notifications</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();requireLogin(()=>showSaved(this))"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg><span class="nav-label">Saved</span></a>
+  <div class="nav-section-title">Topics</div>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('News',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span class="nav-label">News</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Opinion',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Opinion</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Federal',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 3l-4 4-4-4"/></svg><span class="nav-label">Federal</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Provincial',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="nav-label">Provincial</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Economy',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Economy</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('U.S. Politics',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><span class="nav-label">U.S. Politics</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Healthcare',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-label">Healthcare</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Climate & Energy',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/></svg><span class="nav-label">Climate & Energy</span></a>
+  <button class="left-cta" onclick="openModal('signup')">Join the Pulse</button>
+  <div class="left-cta-sub">Where Canada debates what matters</div>
+</aside>
+
+<div class="center-feed">
+<div class="sort-bar" style="position:sticky;top:56px;z-index:190;">
+  <div class="sort-inner">
+    <button class="sort-btn active" onclick="setSort(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>
+      Hot
+    </button>
+    <button class="sort-btn" onclick="setSort(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      New
+    </button>
+    <button class="sort-btn" onclick="setSort(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      Rising
+    </button>
+    <button class="sort-btn" onclick="setSort(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Top
+    </button>
+    <button class="sort-btn" onclick="setSort(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Discussed
+    </button>
+  </div>
+</div>
+
+<main class="container">
+<div class="feed">
+
+  <!-- X CARD -->
+  <div class="x-card">
+    <div class="xch">
+      <div class="xicon">X</div>
+      <div><div class="xct">Post of the Day</div><div class="xcs">Top Canadian Politics</div></div>
+      <span class="badge-hot">🔥 10/10</span>
+    </div>
+    <div class="xbody">
+      <div class="xauthor">
+        <div class="xav">P</div>
+        <div><div class="xname">Pierre Poilievre<span class="xcheck">✓</span></div><div class="xhandle">@PierrePoilievre · 2h</div></div>
+      </div>
+      <div class="xtweet">After 8 years of Trudeau, inflation is at a 40-year high, mortgages have doubled, and rent is up 100%. Canadians are out of money and this prime minister is out of touch.</div>
+      <div class="xstats">
+        <span class="xstat">↩ 12.4K</span>
+        <span class="xstat">↻ 24.1K</span>
+        <span class="xstat" onclick="requireLogin(heartX)">♡ <span id="xheart">89.2K</span></span>
+        <span style="margin-left:auto;font-size:0.72rem;color:var(--text3)">2:30 PM · Feb 17</span>
+      </div>
+    </div>
+    <div style="padding:0 1rem 0.875rem;">
+      <div class="abar">
+        <div class="hpill" onclick="requireLogin(()=>heartPostPill(this,'x-vote'))">
+          <button class="hbtn"><svg width="18" height="18" viewBox="0 0 24 24"><path class="hsvg" d="M12 21C12 21 3 14.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14.5 12 21 12 21Z"/></svg></button>
+          <span class="hcount" id="x-vote">15.2k</span>
+        </div>
+        <div class="cpill" onclick="requireLogin(()=>commentPost())">
+          <svg class="csv" width="16" height="16" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          428
+        </div>
+        <button class="abtn" onclick="sharePost(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- DYNAMIC FEED -->
+  <div id="feedContainer">
+    <div id="feedLoading" style="padding:2rem;text-align:center;color:var(--text3);">Loading stories...</div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <div class="nl">
+    <div class="nl-icon">📬</div>
+    <div class="nl-title">Don't Let Ottawa's Chaos Slip Past You</div>
+    <div class="nl-sub">Scandals erupt at midnight. Bills pass while you sleep. Corruption hides in 400-page documents. Get the no-BS briefing that keeps power accountable — before your morning coffee.</div>
+    <form class="nl-form" onsubmit="event.preventDefault();showToast('📬 You\'re in. Check your inbox.');">
+      <input type="email" class="nl-input" placeholder="your@email.com" required>
+      <button type="submit" class="nl-btn">Subscribe →</button>
+    </form>
+    <div class="nl-note">Join 47,000+ informed Canadians. Daily or weekly. Unsubscribe anytime.</div>
+  </div>
+
+</div>
+</main>
+</div><!-- end center-feed -->
+
+<!-- RIGHT SIDEBAR -->
+<aside class="right-sidebar">
+  <!-- TRENDING -->
+  <div class="sidebar-card">
+    <div class="sidebar-card-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Trending in Canada</div>
+    <div id="trending-list"><div class="trending-item"><div class="trending-label">Loading...</div></div></div>
+  </div>
+
+  <!-- DAILY PULSE NEWSLETTER -->
+  <div class="sidebar-card">
+    <div class="sidebar-mini-nl">
+      <div class="nl-title" style="font-family:'DM Serif Display',serif;">📬 The Daily Pulse</div>
+      <div class="nl-sub">Canada's top stories. Every morning. Free.</div>
+      <form class="nl-form" onsubmit="event.preventDefault();showToast('📬 You\'re in!');">
+        <input type="email" class="nl-input" placeholder="your@email.com" required>
+        <button type="submit" class="nl-btn">Subscribe Free →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="sidebar-footer">
+    <a href="#">Terms</a> · <a href="#">Privacy</a> · <a href="#">About</a> · <a href="#">Advertise</a> · <a href="#">Careers</a><br>
+    © 2026 CanadianPulse
+  </div>
+</aside>
+
+</div><!-- end page-grid -->
+
+<!-- MODAL -->
+<div class="mo" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="moh">
+      <div>
+        <div class="mot" id="mtitle">Join <span>CanadianPulse</span></div>
+        <div class="mot-sub" id="msub">Where Canada debates what matters.</div>
+      </div>
+      <button class="mox" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mob">
+
+      <!-- Tab switcher -->
+      <div class="motabs">
+        <div class="motab active" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+        <div class="motab" id="tab-login" onclick="switchTab('login')">Log In</div>
+      </div>
+
+      <!-- SOCIAL BUTTONS — hero -->
+      <button class="socbtn google" onclick="handleAuth()">
+        <span class="socbtn-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        </span>
+        <span class="socbtn-label" id="google-label">Continue with Google</span>
+        <span class="socbtn-arrow">›</span>
+      </button>
+
+      <button class="socbtn apple" onclick="handleAuth()">
+        <span class="socbtn-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="var(--text)"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </span>
+        <span class="socbtn-label" id="apple-label">Continue with Apple</span>
+        <span class="socbtn-arrow">›</span>
+      </button>
+
+      <button class="socbtn facebook" onclick="handleAuth()">
+        <span class="socbtn-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </span>
+        <span class="socbtn-label" id="fb-label">Continue with Facebook</span>
+        <span class="socbtn-arrow">›</span>
+      </button>
+
+      <!-- Divider -->
+      <div class="modiv">or use email</div>
+
+      <!-- EMAIL EXPAND TOGGLE -->
+      <button class="email-toggle" id="emailToggle" onclick="toggleEmailForm()">
+        <span class="email-toggle-icon">✉️</span>
+        <span id="emailToggleLabel">Continue with Email</span>
+        <span class="email-toggle-chevron">›</span>
+      </button>
+
+      <!-- EXPANDABLE EMAIL FORM -->
+      <div class="email-form-wrap" id="emailFormWrap">
+        <div class="email-form-inner">
+          <input type="text" class="mof" id="fusername" placeholder="Choose a username">
+          <input type="email" class="mof" id="femail" placeholder="Email address">
+          <input type="password" class="mof" id="fpassword" placeholder="Password">
+          <button class="mosub" id="msubmit" onclick="handleAuth()">Create Free Account</button>
+        </div>
+      </div>
+
+      <div class="moterms">By continuing you agree to our <u>Terms</u> and <u>Privacy Policy</u>. No spam, ever.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+let currentSort = 'latest';
+let currentCategory = 'all';
+let pending = null;
+let currentUser = null;
+
+// LIVE FEED
+async function loadFeed() {
+  try {
+    const res = await fetch(`/api/feed?sort=${currentSort}&category=${currentCategory}`);
+    const data = await res.json();
+    const container = document.getElementById('feedContainer');
+    
+    if (!data.stories || data.stories.length === 0) {
+      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">No stories yet.</div>';
+      return;
+    }
+    
+    renderStories(data, container);
+  } catch(e) {
+    console.error('Feed error:', e);
+    document.getElementById('feedContainer').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load stories.</div>';
+  }
+}
+
+function renderStories(data, container) {
+    container.innerHTML = data.stories.map((s, i) => {
+      const score = parseFloat(s.viralScore) || 0;
+      const scoreRounded = Math.round(score);
+      const timeAgo = getTimeAgo(s.publishedAt);
+      const tag = ''; // editorial tag hidden on frontend
+      const category = s.category ? `<span class="tag">${s.category}</span>` : '';
+      const breaking = s.isBreaking ? `<span class="tag live">⬤ Breaking</span>` : '';
+      const featured = s.isFeatured ? `<span class="tag">⭐ Featured</span>` : '';
+      const commentary = s.commentary ? `<div class="tr-line">${s.commentary}</div>` : '';
+
+      // Auto layout logic — position based
+      let ratio = 'ratio-wide';
+      let titleSize = '';
+      let cardClass = 'post-card';
+
+      const layouts = [
+        { ratio: 'ratio-ultra', title: 'font-size:1.5rem;font-family:"DM Serif Display",serif;', card: 'post-card card-hero' },
+        { ratio: 'ratio-land',  title: 'font-size:1.1rem;', card: 'post-card' },
+        { ratio: 'ratio-sq',    title: 'font-size:0.95rem;', card: 'post-card' },
+        { ratio: 'ratio-wide',  title: 'font-size:1.05rem;', card: 'post-card' },
+        { ratio: 'ratio-tall',  title: 'font-size:1rem;font-family:"DM Serif Display",serif;', card: 'post-card' },
+        { ratio: 'ratio-land',  title: 'font-size:0.95rem;', card: 'post-card' },
+      ];
+
+      // Use manual cardStyle if set, otherwise random layout
+      if (s.cardStyle && s.cardStyle !== '') {
+        ratio = s.cardStyle;
+      } else {
+        const layout = layouts[Math.floor(Math.random() * layouts.length)];
+        ratio = layout.ratio;
+        titleSize = layout.title;
+        cardClass = layout.card;
+      }
+
+      // Override if breaking
+      if (s.isBreaking) { titleSize = 'font-size:1.1rem;'; }
+
+      const img = s.imageUrl ? `<div class="media ${ratio}" onclick="event.stopPropagation()"><img src="${s.imageUrl}" alt="${s.originalTitle}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>` : '';
+
+      return `
+  <article class="${cardClass}" onclick="window.open('${s.sourceUrl}','_blank')">
+    <div class="pc">
+      <div class="pmeta">${breaking}${tag}${category}${featured}<span style="color:var(--text3);font-size:0.85em">${s.sourceName || ''}</span><span style="color:var(--text3)">·</span><span>${timeAgo}</span><span class="score">${scoreRounded}/10</span></div>
+      <h3 class="ptitle" style="${titleSize}">${s.originalTitle}</h3>
+      ${commentary}
+      ${img}
+      <div class="abar">
+        <div class="hpill" onclick="event.stopPropagation();requireLogin(()=>likeStory('${s.id}',this))">
+          <button class="hbtn"><svg width="18" height="18" viewBox="0 0 24 24"><path class="hsvg" d="M12 21C12 21 3 14.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14.5 12 21 12 21Z"/></svg></button>
+          <span class="hcount">${fmtV(s.likes || 0)}</span>
+        </div>
+        <button class="abtn" onclick="event.stopPropagation();toggleComments('${s.id}',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Comment</button>
+        <button class="abtn" onclick="event.stopPropagation();sharePost(this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>Share</button>
+        <button class="abtn save-btn" id="save-${s.id}" onclick="event.stopPropagation();requireLogin(()=>toggleSave('${s.id}',this))"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save</button>
+      </div>
+      <div class="comment-section" id="comments-${s.id}" style="display:none" onclick="event.stopPropagation()">
+        <div class="comment-list" id="comment-list-${s.id}"></div>
+        <div class="comment-input-row">
+          <input class="comment-input" id="comment-input-${s.id}" placeholder="Add a comment…" maxlength="1000">
+          <button class="comment-submit" onclick="submitComment('${s.id}')">Post</button>
+        </div>
+      </div>
+    </div>
+  </article>`;
+    }).join('');
+}
+
+async function loadFeedCatch() {
+  try {
+    await loadFeed();
+
+// Load trending topics
+async function loadTrends() {
+  try {
+    const res = await fetch('/api/trends');
+    const data = await res.json();
+    const list = document.getElementById('trending-list');
+    if (!data.trends || data.trends.length === 0) {
+      list.innerHTML = '<div class="trending-item"><div class="trending-label">No trends available</div></div>';
+      return;
+    }
+    list.innerHTML = data.trends.map(t =>
+      '<div class="trending-item" style="cursor:pointer" onclick="searchTrend(\'' + t.title.replace(/'/g, "\\'") + '\')">' +
+      '<div class="trending-label">🔥 Trending in Canada</div>' +
+      '<div class="trending-topic">' + t.title + '</div>' +
+      '<div class="trending-posts">' + t.traffic + ' searches</div>' +
+      '</div>'
+    ).join('');
+  } catch(e) {
+    console.error('Trends error:', e);
+  }
+}
+
+function searchTrend(term) {
+  const overlay = document.getElementById('searchOverlay');
+  const input = document.getElementById('searchInput');
+  if (input) {
+    input.value = term;
+    overlay.classList.add('open');
+    input.focus();
+    input.dispatchEvent(new Event('input'));
+  }
+}
+
+loadTrends();
+  } catch(e) {
+    console.error('Feed error:', e);
+    document.getElementById('feedContainer').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load stories.</div>';
+  }
+}
+
+function getTimeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(mins / 60);
+  const days = Math.floor(hrs / 24);
+  if (days > 0) return days + 'd ago';
+  if (hrs > 0) return hrs + 'h ago';
+  if (mins > 0) return mins + 'm ago';
+  return 'just now';
+}
+
+loadFeed();
+
+
+// LIKES
+async function likeStory(storyId, pill) {
+  const countEl = pill.querySelector('.hcount');
+  const btn = pill.querySelector('.hbtn');
+  const liked = pill.classList.contains('liked');
+  pill.classList.toggle('liked');
+  const count = parseV(countEl.textContent);
+  countEl.textContent = fmtV(liked ? count - 1 : count + 1);
+  btn.style.color = liked ? '' : '#e8354a';
+  try {
+    const token = localStorage.getItem('cp_token');
+    await fetch('/api/stories/' + storyId + '/like', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ liked: !liked })
+    });
+  } catch(e) {}
+}
+
+// COMMENTS
+async function toggleComments(storyId, btn) {
+  const section = document.getElementById('comments-' + storyId);
+  if (!section) return;
+  const isOpen = section.style.display !== 'none';
+  section.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) await loadComments(storyId);
+}
+
+async function loadComments(storyId) {
+  const list = document.getElementById('comment-list-' + storyId);
+  if (!list) return;
+  list.innerHTML = '<div class="comment-empty">Loading...</div>';
+  try {
+    const res = await fetch('/api/comments/' + storyId);
+    const data = await res.json();
+    if (!data.comments || data.comments.length === 0) {
+      list.innerHTML = '<div class="comment-empty">No comments yet. Be the first!</div>';
+      return;
+    }
+    function buildComment(c, isReply) {
+      const replies = (!isReply && c.replies && c.replies.length) 
+        ? '<div class="comment-replies">' + c.replies.map(r => buildComment(r, true)).join('') + '</div>' 
+        : '';
+      return '<div class="comment-item' + (isReply ? ' comment-reply' : '') + '">' +
+        '<div class="comment-avatar">' + c.user.username[0].toUpperCase() + '</div>' +
+        '<div class="comment-body-wrap">' +
+        '<div class="comment-header"><span class="comment-author">' + c.user.username + '</span><span class="comment-time">' + getTimeAgo(c.createdAt) + '</span></div>' +
+        '<div class="comment-text">' + c.body + '</div>' +
+        '<div class="comment-actions">' +
+        '<div class="comment-vote">' +
+        '<button class="comment-vote-btn up" onclick="voteComment(this,\'' + c.id + '\',1)">▲</button>' +
+        '<span class="comment-vote-count">' + (c.likes || 0) + '</span>' +
+        '<button class="comment-vote-btn down" onclick="voteComment(this,\'' + c.id + '\',-1)">▼</button>' +
+        '</div>' +
+        (isReply ? '' : '<button class="comment-reply-btn" onclick="toggleReply(this,\'' + c.id + '\',\'' + storyId + '\')">Reply</button>') +
+        (currentUser && currentUser.id === c.userId ? '<button class="comment-reply-btn" style="color:#e8354a" onclick="deleteComment(\'' + c.id + '\',\'' + storyId + '\')">Delete</button>' : '') +
+        '</div>' +
+        replies +
+        '</div></div>';
+    }
+    list.innerHTML = '<div class="comment-count-label">' + data.comments.length + ' comment' + (data.comments.length !== 1 ? 's' : '') + '</div>' +
+      data.comments.map(c => buildComment(c, false)).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="comment-empty">Failed to load comments.</div>';
+  }
+}
+
+function toggleReply(btn, commentId, storyId) {
+  const item = btn.closest('.comment-item');
+  let wrap = item.querySelector('.reply-wrap');
+  if (wrap) {
+    wrap.style.display = wrap.style.display === 'none' ? 'flex' : 'none';
+    if (wrap.style.display === 'flex') wrap.querySelector('input').focus();
+    return;
+  }
+  wrap = document.createElement('div');
+  wrap.className = 'reply-wrap';
+  wrap.style.cssText = 'display:flex;gap:0.5rem;margin-top:0.5rem;';
+  wrap.dataset.parentId = commentId;
+  wrap.innerHTML = '<input class="comment-input" placeholder="Write a reply..." maxlength="1000" style="flex:1">' +
+    '<button class="comment-submit" onclick="submitReply(this,\'' + commentId + '\',\'' + storyId + '\')">Post</button>';
+  item.querySelector('.comment-body-wrap').appendChild(wrap);
+  wrap.querySelector('input').focus();
+}
+
+async function submitReply(btn, parentId, storyId) {
+  if (!currentUser) { requireLogin(function() {}); return; }
+  const input = btn.previousElementSibling;
+  const body = input.value.trim();
+  if (!body) return;
+  const token = localStorage.getItem('cp_token');
+  try {
+    const res = await fetch('/api/comments/' + storyId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ body: body, parentId: parentId })
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Failed', 'error'); return; }
+    input.value = '';
+    btn.closest('.reply-wrap').style.display = 'none';
+    await loadComments(storyId);
+    showToast('Reply posted!');
+  } catch(e) {
+    showToast('Failed to post reply', 'error');
+  }
+}
+
+async function deleteComment(commentId, storyId) {
+  if (!confirm('Delete this comment?')) return;
+  const token = localStorage.getItem('cp_token');
+  try {
+    const res = await fetch('/api/comments/' + commentId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) { showToast('Failed to delete', 'error'); return; }
+    await loadComments(storyId);
+    showToast('Comment deleted');
+  } catch(e) {
+    showToast('Failed to delete', 'error');
+  }
+}
+
+function voteComment(btn, commentId, dir) {
+  if (!currentUser) { requireLogin(function() {}); return; }
+  const wrap = btn.closest('.comment-vote');
+  const countEl = wrap.querySelector('.comment-vote-count');
+  const upBtn = wrap.querySelector('.up');
+  const downBtn = wrap.querySelector('.down');
+  const wasActive = btn.classList.contains('active');
+  const oppositeActive = dir === 1 ? downBtn.classList.contains('active') : upBtn.classList.contains('active');
+  let count = parseInt(countEl.textContent) || 0;
+  upBtn.classList.remove('active');
+  downBtn.classList.remove('active');
+  if (wasActive) {
+    countEl.textContent = count - dir;
+  } else {
+    btn.classList.add('active');
+    countEl.textContent = oppositeActive ? count + (dir * 2) : count + dir;
+  }
+}
+
+async function submitComment(storyId) {
+  if (!currentUser) { requireLogin(function() { submitComment(storyId); }); return; }
+  const input = document.getElementById('comment-input-' + storyId);
+  const body = input.value.trim();
+  if (!body) return;
+  const token = localStorage.getItem('cp_token');
+  try {
+    const res = await fetch('/api/comments/' + storyId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ body: body })
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Failed to post', 'error'); return; }
+    input.value = '';
+    await loadComments(storyId);
+  } catch(e) {
+    showToast('Failed to post comment', 'error');
+  }
+}
+
+// SEARCH
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('searchInput').focus(),50);
+}
+function closeSearch(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSearch();closeModal();}});
+
+// VIDEO
+let vPlaying=false,vProg=0,vInt=null;
+const vTotal=1478;
+function toggleVideo(){
+  const c=document.getElementById('vidC');
+  const btn=document.getElementById('vPlayBtn');
+  const poster=document.getElementById('vPoster');
+  vPlaying=!vPlaying;
+  c.classList.toggle('playing',vPlaying);
+  btn.textContent=vPlaying?'⏸':'▶';
+  if(vPlaying){
+    poster.style.opacity='0.25';
+    vInt=setInterval(()=>{
+      vProg=Math.min(vProg+0.08,100);
+      document.getElementById('vFill').style.width=vProg+'%';
+      const e=Math.floor(vProg/100*vTotal);
+      document.getElementById('vTime').textContent=ft(e)+' / 24:38';
+      if(vProg>=100){clearInterval(vInt);vPlaying=false;btn.textContent='▶';c.classList.remove('playing');poster.style.opacity='1';}
+    },100);
+  } else {
+    clearInterval(vInt);poster.style.opacity='1';
+  }
+}
+function scrubVideo(e){
+  const b=document.getElementById('vProgress');
+  const r=b.getBoundingClientRect();
+  const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  vProg=p*100;
+  document.getElementById('vFill').style.width=vProg+'%';
+  document.getElementById('vTime').textContent=ft(Math.floor(p*vTotal))+' / 24:38';
+}
+function ft(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+
+// MODAL
+let emailFormOpen=false;
+
+function openModal(m){
+  document.getElementById('modal').classList.add('open');
+  switchTab(m);
+  // Reset email form to collapsed each time modal opens
+  emailFormOpen=false;
+  document.getElementById('emailFormWrap').classList.remove('open');
+  document.getElementById('emailToggle').classList.remove('open');
+  document.getElementById('emailToggle').querySelector('.email-toggle-chevron').style.transform='';
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');pending=null;}
+
+function switchTab(m){
+  const s=m==='signup';
+  document.getElementById('tab-signup').classList.toggle('active',s);
+  document.getElementById('tab-login').classList.toggle('active',!s);
+  document.getElementById('mtitle').innerHTML=s?'Join <span style="color:var(--red)">CanadianPulse</span>':'Welcome <span style="color:var(--red)">Back</span>';
+  document.getElementById('msub').textContent=s?'Where Canada debates what matters.':'Good to have you back.';
+  // Update social button labels
+  document.getElementById('google-label').textContent=s?'Continue with Google':'Sign in with Google';
+  document.getElementById('apple-label').textContent=s?'Continue with Apple':'Sign in with Apple';
+  document.getElementById('fb-label').textContent=s?'Continue with Facebook':'Sign in with Facebook';
+  // Username field only for signup
+  const uField=document.getElementById('fusername');
+  if(uField) uField.style.display=s?'block':'none';
+  document.getElementById('msubmit').textContent=s?'Create Free Account':'Log In';
+  document.getElementById('emailToggleLabel').textContent=s?'Continue with Email':'Sign in with Email';
+}
+
+function toggleEmailForm(){
+  emailFormOpen=!emailFormOpen;
+  const wrap=document.getElementById('emailFormWrap');
+  const toggle=document.getElementById('emailToggle');
+  const chevron=toggle.querySelector('.email-toggle-chevron');
+  wrap.classList.toggle('open',emailFormOpen);
+  toggle.classList.toggle('open',emailFormOpen);
+  chevron.style.transform=emailFormOpen?'rotate(90deg)':'';
+  // Scroll modal body down slightly so form is visible
+  if(emailFormOpen){
+    setTimeout(()=>{
+      wrap.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },200);
+  }
+}
+
+async function handleAuth() {
+  const isLogin = document.getElementById('tab-login').classList.contains('active');
+  const email = document.getElementById('femail').value.trim();
+  const password = document.getElementById('fpassword').value;
+  const username = document.getElementById('fusername')?.value.trim();
+
+  if (!email || !password) return showToast('Please fill in all fields', 'error');
+  if (!isLogin && !username) return showToast('Please choose a username', 'error');
+
+  const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+  const body = isLogin ? { email, password } : { email, password, username };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (!res.ok) return showToast(data.error || 'Something went wrong', 'error');
+
+    localStorage.setItem('cp_token', data.token);
+    localStorage.setItem('cp_user', JSON.stringify(data.user));
+    currentUser = data.user;
+    updateAuthUI();
+    closeModal();
+    showToast('🇨🇦 Welcome, ' + data.user.username + '!');
+    if (pending) { pending(); pending = null; }
+  } catch (e) {
+    showToast('Network error, try again', 'error');
+  }
+}
+
+function updateAuthUI() {
+  const user = currentUser;
+  const loginBtn = document.querySelector('.btn-outline');
+  const joinBtn = document.querySelector('.btn-red');
+  if (user) {
+    if (loginBtn) loginBtn.textContent = user.username;
+    if (joinBtn) { joinBtn.textContent = 'Log Out'; joinBtn.onclick = logout; }
+  } else {
+    if (loginBtn) { loginBtn.textContent = 'Log In'; loginBtn.onclick = () => openModal('login'); }
+    if (joinBtn) { joinBtn.textContent = 'Join Free'; joinBtn.onclick = () => openModal('signup'); }
+  }
+}
+
+function logout() {
+  localStorage.removeItem('cp_token');
+  localStorage.removeItem('cp_user');
+  currentUser = null;
+  updateAuthUI();
+  showToast('Logged out');
+}
+
+function requireLogin(cb) {
+  if (currentUser) { cb(); return; }
+  pending = cb;
+  openModal('signup');
+}
+
+// Init auth state on page load
+try {
+  const stored = localStorage.getItem('cp_user');
+  const token = localStorage.getItem('cp_token');
+  if (stored && token) {
+    currentUser = JSON.parse(stored);
+    updateAuthUI();
+  }
+} catch(e) {}
+
+// EXPAND
+function toggleExpand(card){
+  const exp=card.classList.contains('expanded');
+  document.querySelectorAll('.post-card.expanded').forEach(c=>c.classList.remove('expanded'));
+  if(!exp){card.classList.add('expanded');setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),120);}
+}
+
+// HEARTS — pill-level handler
+function heartPostPill(pill,cid){
+  const btn=pill.querySelector('.hbtn');
+  const svg=pill.querySelector('.hsvg');
+  const el=document.getElementById(cid);
+  if(!el) return;
+  const liked=btn.classList.contains('liked');
+  btn.classList.toggle('liked',!liked);
+  svg.style.fill=liked?'none':'var(--red)';
+  svg.style.stroke=liked?'currentColor':'var(--red)';
+  let v=parseV(el.textContent);
+  v+=liked?-1:1;
+  el.textContent=fmtV(v);
+  showToast(liked?'Removed':'♡ Hearted!');
+}
+function heartX(){const e=document.getElementById('xheart');let v=parseV(e.textContent);e.textContent=fmtV(v+1);showToast('♡ Hearted!');}
+function parseV(s){s=String(s).trim();if(/k$/i.test(s))return Math.round(parseFloat(s)*1000);return parseInt(s)||0;}
+function fmtV(n){if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+'k';return String(n);}
+
+// OTHER ACTIONS
+function sharePost(btn) {
+  event.stopPropagation();
+  // Remove any existing share menus
+  document.querySelectorAll('.share-menu').forEach(m => m.remove());
+
+  // Find the story URL from the card
+  const card = btn.closest('article');
+  const storyUrl = card ? card.dataset.url : window.location.href;
+  const storyTitle = card ? card.querySelector('.tr-title')?.textContent || 'Check this out' : 'Check this out';
+  const encodedUrl = encodeURIComponent(storyUrl);
+  const encodedTitle = encodeURIComponent(storyTitle);
+
+  const menu = document.createElement('div');
+  menu.className = 'share-menu';
+  menu.innerHTML = `
+    <div class="share-menu-item" onclick="window.open('https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}','_blank');closeShareMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Post on X
+    </div>
+    <div class="share-menu-item" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}','_blank');closeShareMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Share on Facebook
+    </div>
+    <div class="share-menu-item" onclick="window.open('https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}','_blank');closeShareMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#0077B5"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      Share on LinkedIn
+    </div>
+    <div class="share-menu-divider"></div>
+    <div class="share-menu-item" onclick="copyLink('${storyUrl}')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      Copy Link
+    </div>
+  `;
+
+  // Position menu near button
+  document.body.appendChild(menu);
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+  menu.style.left = Math.min(rect.left, window.innerWidth - 200) + 'px';
+
+  // Close on outside click
+  setTimeout(() => document.addEventListener('click', closeShareMenu, { once: true }), 0);
+}
+
+function closeShareMenu() {
+  document.querySelectorAll('.share-menu').forEach(m => m.remove());
+}
+
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(() => showToast('🔗 Link copied!'));
+  closeShareMenu();
+}
+async function showSaved(el) {
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  if (el) el.classList.add('active');
+  currentCategory = 'saved';
+  const container = document.getElementById('feedContainer');
+  container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Loading saved stories...</div>';
+  const token = localStorage.getItem('cp_token');
+  try {
+    const res = await fetch('/api/saves', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    if (!data.stories || data.stories.length === 0) {
+      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">No saved stories yet.</div>';
+      return;
+    }
+    // Reuse loadFeed render logic by temporarily setting stories
+    const fakeData = { stories: data.stories, total: data.stories.length };
+    renderStories(fakeData, container);
+  } catch(e) {
+    container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load saved stories.</div>';
+  }
+}
+
+async function toggleSave(storyId, btn) {
+  const token = localStorage.getItem('cp_token');
+  try {
+    const res = await fetch('/api/saves/' + storyId, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (data.saved) {
+      btn.classList.add('saved');
+      btn.style.color = 'var(--gold, #f5a623)';
+      btn.style.borderColor = 'rgba(245,166,35,0.3)';
+      showToast('⌂ Saved!');
+    } else {
+      btn.classList.remove('saved');
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      showToast('Removed from saved');
+    }
+  } catch(e) {
+    showToast('Failed to save', 'error');
+  }
+}
+function commentPost(){showToast('💬 Join the discussion');}
+function postComment(){showToast('💬 Comment posted!');}
+function setSort(b){
+  document.querySelectorAll('.sort-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const label = b.textContent.trim();
+  const sortMap = { 'Hot': 'score', 'New': 'latest', 'Rising': 'score', 'Top': 'score', 'Discussed': 'latest' };
+  currentSort = sortMap[label] || 'latest';
+  loadFeed();
+}
+
+
+function filterTopic(cat, el) {
+  currentCategory = cat;
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  if (el) el.classList.add('active');
+  loadFeed();
+}
+
+// TOAST
+let tt;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
+
+// THEME TOGGLE
+function toggleTheme(){
+  const b=document.body;
+  const icon=document.getElementById('themeIcon');
+  b.classList.toggle('light');
+  const isLight=b.classList.contains('light');
+  icon.textContent=isLight?'🌙':'☀️';
+  try{localStorage.setItem('cp-theme',isLight?'light':'dark');}catch(e){}
+}
+try{if(localStorage.getItem('cp-theme')==='light'){document.body.classList.add('light');document.getElementById('themeIcon').textContent='🌙';}}catch(e){}
+</script>
+</body>
+</html>

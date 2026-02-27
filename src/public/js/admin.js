@@ -211,6 +211,8 @@ async function openEditModal(id) {
     document.getElementById('modalCategory').value = s.category || 'News';
     document.getElementById('modalFeatured').checked = s.isFeatured || false;
     document.getElementById('modalBreaking').checked = s.isBreaking || false;
+    document.getElementById('modalCardStyle').value = s.cardStyle || '';
+    setSelectedTags(s.tags || []);
     setModalStatus(s.status, document.querySelector(`.status-option[data-val="${s.status}"]`));
     document.getElementById('editModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -225,13 +227,27 @@ function setModalStatus(val, btn) {
   if (badge) { badge.textContent = val; badge.className = 'modal-status-badge msb-' + val; }
 }
 
+function toggleTag(el) {
+  el.classList.toggle('active');
+}
+
+function getSelectedTags() {
+  return Array.from(document.querySelectorAll('#modalTags .modal-tag.active')).map(el => el.dataset.tag);
+}
+
+function setSelectedTags(tags) {
+  document.querySelectorAll('#modalTags .modal-tag').forEach(el => {
+    el.classList.toggle('active', tags.includes(el.dataset.tag));
+  });
+}
+
 function closeModal() { document.getElementById('editModal').style.display = 'none'; document.body.style.overflow = ''; modalStoryId = null; }
 function closeModalOnOverlay(e) { if (e.target === e.currentTarget) closeModal(); }
 
 async function saveModal() {
   if (!modalStoryId) return;
   try {
-    const res = await fetch(`/admin/stories/${modalStoryId}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ originalTitle: document.getElementById('modalTitle').value, editorialTag: document.getElementById('modalTag').value, commentary: document.getElementById('modalCommentary').value, category: document.getElementById('modalCategory').value, status: document.getElementById('modalStatus').value, isFeatured: document.getElementById('modalFeatured').checked, isBreaking: document.getElementById('modalBreaking').checked }) });
+    const res = await fetch(`/admin/stories/${modalStoryId}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ originalTitle: document.getElementById('modalTitle').value, editorialTag: document.getElementById('modalTag').value, commentary: document.getElementById('modalCommentary').value, category: document.getElementById('modalCategory').value, status: document.getElementById('modalStatus').value, isFeatured: document.getElementById('modalFeatured').checked, isBreaking: document.getElementById('modalBreaking').checked, cardStyle: document.getElementById('modalCardStyle').value, tags: getSelectedTags() }) });
     if (res.ok) { toast('Story saved ✓'); closeModal(); loadStories(); refreshStats(); }
     else { const d = await res.json(); toast(d.error || 'Save failed.', 'error'); }
   } catch (e) { toast('Network error.', 'error'); }

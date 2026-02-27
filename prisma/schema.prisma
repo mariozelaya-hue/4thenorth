@@ -35,9 +35,13 @@ model Story {
   category            String?     @db.VarChar(50)
   isFeatured          Boolean     @default(false) @map("is_featured")
   isBreaking          Boolean     @default(false) @map("is_breaking")
+  cardStyle           String?     @default("")
+  tags                String[]    @default([])
   sourceHash          String      @unique @map("source_hash") @db.VarChar(64)
   createdAt           DateTime    @default(now()) @map("created_at")
   updatedAt           DateTime    @updatedAt @map("updated_at")
+
+  savedBy     SavedStory[]
 
   @@map("stories")
   @@index([status, publishedAt(sort: Desc)])
@@ -80,4 +84,44 @@ model Setting {
   value String @db.Text
 
   @@map("settings")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique @db.VarChar(50)
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  comments     Comment[]
+  savedStories SavedStory[]
+
+  @@map("users")
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  storyId   String    @map("story_id")
+  userId    String    @map("user_id")
+  parentId  String?   @map("parent_id")
+  body      String    @db.VarChar(1000)
+  likes     Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id])
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model SavedStory {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  storyId   String   @map("story_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
+  story     Story    @relation(fields: [storyId], references: [id])
+
+  @@unique([userId, storyId])
+  @@map("saved_stories")
 }

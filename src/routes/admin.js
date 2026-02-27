@@ -288,14 +288,17 @@ router.get('/stories/:id', auth, async (req, res) => {
 // PUT /admin/stories/:id - update story
 router.put('/stories/:id', auth, async (req, res) => {
   try {
-    const { editorialTag, commentary, category, status, isFeatured, isBreaking } = req.body;
+    const { originalTitle, editorialTag, commentary, category, status, isFeatured, isBreaking, cardStyle, tags } = req.body;
 
     const data = {};
+    if (originalTitle !== undefined) data.originalTitle = originalTitle;
     if (editorialTag !== undefined) data.editorialTag = editorialTag;
     if (commentary !== undefined) data.commentary = commentary;
     if (category !== undefined) data.category = category;
     if (isFeatured !== undefined) data.isFeatured = isFeatured;
     if (isBreaking !== undefined) data.isBreaking = isBreaking;
+    if (cardStyle !== undefined) data.cardStyle = cardStyle;
+    if (tags !== undefined) data.tags = tags;
 
     if (status === 'published') {
       data.status = 'published';

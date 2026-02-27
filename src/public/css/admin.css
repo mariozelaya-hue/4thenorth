@@ -214,3 +214,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica
 .toast-undo { margin-left: auto; color: #fff; font-weight: 700; text-decoration: underline; white-space: nowrap; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; }
+
+.modal-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.25rem;}
+.modal-tag{padding:0.3rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1px solid #333;color:#888;transition:all 0.15s;user-select:none;background:transparent;}
+.modal-tag:hover{border-color:#555;color:#ccc;}
+.modal-tag.active{background:#e8354a;border-color:#e8354a;color:#fff;}

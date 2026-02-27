@@ -3,7 +3,7 @@ const router = express.Router();
 const prisma = require('../db');
 const NodeCache = require('node-cache');
 
-const cache = new NodeCache({ stdTTL: 30 }); // 30 second cache
+const cache = new NodeCache({ stdTTL: 10 }); // 10 second cache
 
 // GET /api/feed - paginated public feed
 router.get('/feed', async (req, res) => {
@@ -20,7 +20,10 @@ router.get('/feed', async (req, res) => {
 
     const where = { status: 'published' };
     if (category !== 'all') {
-      where.category = category;
+      where.OR = [
+        { category: category },
+        { tags: { has: category } }
+      ];
     }
 
     const orderBy = sort === 'score' 
@@ -48,6 +51,8 @@ router.get('/feed', async (req, res) => {
           publishedAt: true,
           isFeatured: true,
           isBreaking: true,
+          cardStyle: true,
+          tags: true,
         },
       }),
       prisma.story.count({ where }),
@@ -88,3 +93,23 @@ router.get('/stories/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+// POST /api/stories/:id/like
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'canadianpulse-secret-key';
+
+router.post('/stories/:id/like', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'Login required' });
+    jwt.verify(token, JWT_SECRET);
+    const { liked } = req.body;
+    await prisma.story.update({
+      where: { id: req.params.id },
+      data: { likes: { increment: liked ? 1 : -1 } }
+    });
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ error: 'Failed' });
+  }
+});

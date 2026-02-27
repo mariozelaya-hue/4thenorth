@@ -10,6 +10,10 @@ const rateLimit = require('express-rate-limit');
 const feedRoutes = require('./routes/feed');
 const adminRoutes = require('./routes/admin');
 const newsletterRoutes = require('./routes/newsletter');
+const authRoutes = require('./routes/auth');
+const commentRoutes = require('./routes/comments');
+const savesRoutes = require('./routes/saves');
+const trendsRoutes = require('./routes/trends');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +51,10 @@ app.use('/api/', generalLimiter);
 // Routes
 app.use('/api', feedRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/saves', savesRoutes);
+app.use('/api/trends', trendsRoutes);
 app.use('/admin', adminRoutes);
 
 // Health check
@@ -54,9 +62,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
-// Home redirect to admin for now (Phase 1)
+// Home - public frontend
 app.get('/', (req, res) => {
-  res.redirect('/admin');
+  res.render('index');
 });
 
 // Error handler
