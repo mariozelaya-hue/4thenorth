@@ -98,18 +98,85 @@ module.exports = router;
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'canadianpulse-secret-key';
 
-router.post('/stories/:id/like', async (req, res) => {
+
+router.post("/stories/:id/like", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!token) return res.status(401).json({ error: "Login required" });
+    const user = jwt.verify(token, JWT_SECRET);
+    const existing = await prisma.storyLike.findUnique({
+      where: { userId_storyId: { userId: user.id, storyId: req.params.id } }
+    });
+    if (existing) {
+      await prisma.storyLike.delete({ where: { id: existing.id } });
+      await prisma.story.update({ where: { id: req.params.id }, data: { likes: { decrement: 1 } } });
+      res.json({ liked: false });
+    } else {
+      await prisma.storyLike.create({ data: { userId: user.id, storyId: req.params.id } });
+      await prisma.story.update({ where: { id: req.params.id }, data: { likes: { increment: 1 } } });
+      res.json({ liked: true });
+    }
+  } catch(e) {
+    res.status(500).json({ error: "Failed" });
+  }
+});
+router.get('/feed/search', async (req, res) => {
+  try {
+    const { search } = req.query;
+    if (!search) return res.json({ stories: [] });
+    const stories = await prisma.story.findMany({
+      where: {
+        status: 'published',
+        OR: [
+          { originalTitle: { contains: search, mode: 'insensitive' } },
+          { commentary: { contains: search, mode: 'insensitive' } },
+          { editorialTag: { contains: search, mode: 'insensitive' } },
+          { sourceName: { contains: search, mode: 'insensitive' } },
+          { category: { contains: search, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: 50,
+      select: {
+        id: true, originalTitle: true, editorialTag: true, commentary: true,
+        sourceName: true, sourceUrl: true, imageUrl: true, category: true,
+        viralScore: true, likes: true, dislikes: true, publishedAt: true,
+        isFeatured: true, isBreaking: true, cardStyle: true, tags: true,
+      },
+    });
+    res.json({ stories });
+  } catch (err) {
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+// GET /api/stories/:id/liked - check if user liked a story
+router.get('/stories/:id/liked', async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ error: 'Login required' });
-    jwt.verify(token, JWT_SECRET);
-    const { liked } = req.body;
-    await prisma.story.update({
-      where: { id: req.params.id },
-      data: { likes: { increment: liked ? 1 : -1 } }
+    if (!token) return res.json({ liked: false });
+    const user = jwt.verify(token, JWT_SECRET);
+    const like = await prisma.storyLike.findUnique({
+      where: { userId_storyId: { userId: user.id, storyId: req.params.id } }
     });
-    res.json({ ok: true });
+    res.json({ liked: !!like });
   } catch(e) {
-    res.status(500).json({ error: 'Failed' });
+    res.json({ liked: false });
+  }
+});
+
+// GET /api/likes - get all liked story IDs for current user
+router.get('/likes', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.json({ storyIds: [] });
+    const user = jwt.verify(token, JWT_SECRET);
+    const likes = await prisma.storyLike.findMany({
+      where: { userId: user.id },
+      select: { storyId: true }
+    });
+    res.json({ storyIds: likes.map(l => l.storyId) });
+  } catch(e) {
+    res.json({ storyIds: [] });
   }
 });

@@ -197,6 +197,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 }
 .search-close-btn:hover{color:var(--text);}
 .search-hint{font-size:0.75rem;color:var(--text3);margin-top:0.75rem;text-align:center;}
+.search-suggestion{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);}
+.search-suggestion:last-child{border-bottom:none;}
+.search-suggestion:hover{background:var(--bg3);}
 
 /* SORT */
 .sort-bar{background:rgba(10,10,11,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1rem;position:sticky;top:56px;z-index:190;}
@@ -447,6 +450,38 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .modiv::before,.modiv::after{content:'';flex:1;height:1px;background:var(--border);}
 .moterms{font-size:0.7rem;color:var(--text3);text-align:center;line-height:1.6;margin-top:1rem;}
 
+/* PROFILE DROPDOWN */
+.profile-btn{display:flex;align-items:center;gap:0.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:0.25rem 0.75rem 0.25rem 0.25rem;cursor:pointer;transition:all 0.2s;font-family:"Sora",sans-serif;border:none;}
+.profile-btn:hover{border-color:var(--border2);background:var(--bg4);}
+.profile-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0;}
+.profile-name{font-size:0.8rem;font-weight:600;color:var(--text);}
+.profile-wrap{position:relative;flex-shrink:0;}
+.profile-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:0.4rem;min-width:210px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:fadeIn 0.15s ease;display:none;}
+.profile-dropdown.open{display:block;}
+.pd-header{padding:0.75rem 0.875rem 0.5rem;border-bottom:1px solid var(--border);margin-bottom:0.3rem;}
+.pd-username{font-size:0.9rem;font-weight:700;color:var(--text);}
+.pd-email{font-size:0.72rem;color:var(--text3);margin-top:0.1rem;}
+.pd-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-radius:8px;cursor:pointer;color:var(--text2);font-size:0.85rem;font-weight:500;transition:all 0.15s;}
+.pd-item:hover{background:var(--bg3);color:var(--text);}
+.pd-item.red{color:#e8354a;}
+.pd-item.red:hover{background:rgba(232,53,74,0.08);color:#e8354a;}
+.pd-divider{height:1px;background:var(--border);margin:0.3rem 0;}
+/* PROFILE DROPDOWN */
+.profile-btn{display:flex;align-items:center;gap:0.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:0.25rem 0.75rem 0.25rem 0.25rem;cursor:pointer;transition:all 0.2s;font-family:"Sora",sans-serif;border:none;}
+.profile-btn:hover{border-color:var(--border2);background:var(--bg4);}
+.profile-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0;}
+.profile-name{font-size:0.8rem;font-weight:600;color:var(--text);}
+.profile-wrap{position:relative;flex-shrink:0;}
+.profile-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:0.4rem;min-width:210px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:fadeIn 0.15s ease;display:none;}
+.profile-dropdown.open{display:block;}
+.pd-header{padding:0.75rem 0.875rem 0.5rem;border-bottom:1px solid var(--border);margin-bottom:0.3rem;}
+.pd-username{font-size:0.9rem;font-weight:700;color:var(--text);}
+.pd-email{font-size:0.72rem;color:var(--text3);margin-top:0.1rem;}
+.pd-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.875rem;border-radius:8px;cursor:pointer;color:var(--text2);font-size:0.85rem;font-weight:500;transition:all 0.15s;}
+.pd-item:hover{background:var(--bg3);color:var(--text);}
+.pd-item.red{color:#e8354a;}
+.pd-item.red:hover{background:rgba(232,53,74,0.08);color:#e8354a;}
+.pd-divider{height:1px;background:var(--border);margin:0.3rem 0;}
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;color:var(--text);z-index:2000;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
@@ -472,7 +507,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 /* Comment section */
 .comment-section{padding:1rem 1.25rem;border-top:1px solid var(--border);background:var(--bg2);}
 .comment-count-label{font-size:0.8rem;font-weight:700;color:var(--text2);margin-bottom:0.75rem;}
-.comment-list{display:flex;flex-direction:column;gap:0;}
+.comment-list{display:flex;flex-direction:column;gap:0;max-height:400px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
 .comment-item{display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--border);}
 .comment-item:last-child{border-bottom:none;}
 .comment-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#e8354a,#c82d3e);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0;}
@@ -512,9 +547,26 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
     <button class="search-icon-btn" onclick="openSearch()" title="Search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     </button>
-    <div class="hbtns">
-      <button class="btn-outline" onclick="openModal('login')">Log In</button>
-      <button class="btn-red" onclick="openModal('signup')">Join Free</button>
+    <div class="hbtns" id="authArea">
+
+      <button class="btn-outline" id="loginBtn" onclick="openModal('login')">Log In</button>
+      <button class="btn-red" id="joinBtn" onclick="openModal('signup')">Join Free</button>
+    </div>
+    <div class="profile-wrap" id="profileWrap" style="display:none;">
+      <button class="profile-btn" onclick="toggleProfileDropdown()">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <span class="profile-name" id="profileName">User</span>
+      </button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="pd-header"><div class="pd-username" id="pdUsername"></div><div class="pd-email" id="pdEmail"></div></div>
+        <div class="pd-item" onclick="showSavedFromProfile()">📌 Saved Stories</div>
+        <div class="pd-item" onclick="showLikedFromProfile()">❤️ Liked Stories</div>
+        <div class="pd-divider"></div>
+        <div class="pd-item" onclick="showProfileSettings()">⚙️ Settings</div>
+        <div class="pd-divider"></div>
+        <div class="pd-item red" onclick="logout()">Log Out</div>
+      </div>
+    </div>
     </div>
   </div>
 </header>
@@ -523,9 +575,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 <div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
   <div class="search-overlay-inner">
     <div class="search-input-wrap">
-      <input class="search-overlay-input" id="searchInput" placeholder="Search Canada's news…" type="text" autofocus>
+      <input class="search-overlay-input" id="searchInput" placeholder="Search Canada's news…" type="text" autofocus onkeydown="if(event.key==='Enter')executeSearch(this.value)" oninput="liveSearch(this.value)">
       <button class="search-close-btn" onclick="closeSearch()">✕</button>
     </div>
+    <div id="searchDropdown" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-top:0.5rem;overflow:hidden;"></div>
     <div class="search-hint">Press Enter to search · Esc to close</div>
   </div>
 </div>
@@ -536,9 +589,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 <aside class="left-sidebar">
   <a class="nav-item active" href="#" onclick="event.preventDefault();filterTopic('all',this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
   <a class="nav-item" style="display:none" href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg><span class="nav-label">Trending</span></a>
-  <a class="nav-item" href="#" onclick="event.preventDefault();openSearch()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span class="nav-label">Explore</span></a>
+  <a class="nav-item" href="#" id="nav-explore" onclick="event.preventDefault();showExplore()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span class="nav-label">Explore</span></a>
   <a class="nav-item" style="display:none" href="#" onclick="event.preventDefault();requireLogin(()=>{})"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><span class="nav-label">Notifications</span></a>
   <a class="nav-item" href="#" onclick="event.preventDefault();requireLogin(()=>showSaved(this))"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg><span class="nav-label">Saved</span></a>
+  <a class="nav-item" href="#" onclick="event.preventDefault();requireLogin(()=>showLiked(this))"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="nav-label">Liked</span></a>
   <div class="nav-section-title">Topics</div>
   <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('News',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span class="nav-label">News</span></a>
   <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Opinion',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Opinion</span></a>
@@ -548,8 +602,8 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
   <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('U.S. Politics',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><span class="nav-label">U.S. Politics</span></a>
   <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Healthcare',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-label">Healthcare</span></a>
   <a class="nav-item" href="#" onclick="event.preventDefault();filterTopic('Climate & Energy',this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/></svg><span class="nav-label">Climate & Energy</span></a>
-  <button class="left-cta" onclick="openModal('signup')">Join the Pulse</button>
-  <div class="left-cta-sub">Where Canada debates what matters</div>
+  <button class="left-cta" id="joinPulseBtn" onclick="openModal('signup')">Join the Pulse</button>
+  <div class="left-cta-sub" id="leftCtaSub">Where Canada debates what matters</div>
 </aside>
 
 <div class="center-feed">
@@ -581,44 +635,37 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 <main class="container">
 <div class="feed">
 
-  <!-- X CARD -->
-  <div class="x-card">
+
+
+<% if (pinnedStory) { %>
+  <div class="x-card" id="pinnedStoryCard">
     <div class="xch">
-      <div class="xicon">X</div>
-      <div><div class="xct">Post of the Day</div><div class="xcs">Top Canadian Politics</div></div>
-      <span class="badge-hot">🔥 10/10</span>
+      <div class="xicon">📌</div>
+      <div><div class="xct">Post of the Day</div><div class="xcs"><%= pinnedStory.category || 'Top Story' %></div></div>
+      <% if (pinnedStory.viralScore) { %><span class="badge-hot">🔥 <%= parseFloat(pinnedStory.viralScore).toFixed(1) %>/10</span><% } %>
     </div>
     <div class="xbody">
-      <div class="xauthor">
-        <div class="xav">P</div>
-        <div><div class="xname">Pierre Poilievre<span class="xcheck">✓</span></div><div class="xhandle">@PierrePoilievre · 2h</div></div>
-      </div>
-      <div class="xtweet">After 8 years of Trudeau, inflation is at a 40-year high, mortgages have doubled, and rent is up 100%. Canadians are out of money and this prime minister is out of touch.</div>
-      <div class="xstats">
-        <span class="xstat">↩ 12.4K</span>
-        <span class="xstat">↻ 24.1K</span>
-        <span class="xstat" onclick="requireLogin(heartX)">♡ <span id="xheart">89.2K</span></span>
-        <span style="margin-left:auto;font-size:0.72rem;color:var(--text3)">2:30 PM · Feb 17</span>
+      <div class="xtweet"><%= pinnedStory.originalTitle %></div>
+      <% if (pinnedStory.commentary) { %>
+        <div style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2);font-style:italic;"><%= pinnedStory.commentary %></div>
+      <% } %>
+      <% if (pinnedStory.imageUrl) { %>
+        <img src="<%= pinnedStory.imageUrl %>" alt="<%= pinnedStory.originalTitle %>" style="width:100%;border-radius:8px;margin-top:0.75rem;max-height:300px;object-fit:cover;" onerror="this.style.display='none'" />
+      <% } %>
+      <div class="xstats" style="margin-top:0.75rem;">
+        <% if (pinnedStory.sourceName) { %><span class="xstat" style="color:var(--text3)"><%= pinnedStory.sourceName %></span><% } %>
+        <span style="margin-left:auto;font-size:0.72rem;color:var(--text3)">👍 <%= pinnedStory.likes || 0 %></span>
       </div>
     </div>
     <div style="padding:0 1rem 0.875rem;">
       <div class="abar">
-        <div class="hpill" onclick="requireLogin(()=>heartPostPill(this,'x-vote'))">
-          <button class="hbtn"><svg width="18" height="18" viewBox="0 0 24 24"><path class="hsvg" d="M12 21C12 21 3 14.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14.5 12 21 12 21Z"/></svg></button>
-          <span class="hcount" id="x-vote">15.2k</span>
-        </div>
-        <div class="cpill" onclick="requireLogin(()=>commentPost())">
-          <svg class="csv" width="16" height="16" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          428
-        </div>
-        <button class="abtn" onclick="sharePost(this)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
-          Share
-        </button>
+        <a href="<%= pinnedStory.sourceUrl %>" target="_blank" rel="noopener" class="abtn" style="text-decoration:none;">
+          Read Full Story
+        </a>
       </div>
     </div>
   </div>
-
+<% } %>
 <!-- DYNAMIC FEED -->
   <div id="feedContainer">
     <div id="feedLoading" style="padding:2rem;text-align:center;color:var(--text3);">Loading stories...</div>
@@ -687,51 +734,16 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
         <div class="motab" id="tab-login" onclick="switchTab('login')">Log In</div>
       </div>
 
-      <!-- SOCIAL BUTTONS — hero -->
-      <button class="socbtn google" onclick="handleAuth()">
-        <span class="socbtn-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        </span>
-        <span class="socbtn-label" id="google-label">Continue with Google</span>
-        <span class="socbtn-arrow">›</span>
-      </button>
-
-      <button class="socbtn apple" onclick="handleAuth()">
-        <span class="socbtn-icon">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="var(--text)"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        </span>
-        <span class="socbtn-label" id="apple-label">Continue with Apple</span>
-        <span class="socbtn-arrow">›</span>
-      </button>
-
-      <button class="socbtn facebook" onclick="handleAuth()">
-        <span class="socbtn-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        </span>
-        <span class="socbtn-label" id="fb-label">Continue with Facebook</span>
-        <span class="socbtn-arrow">›</span>
-      </button>
-
-      <!-- Divider -->
-      <div class="modiv">or use email</div>
-
-      <!-- EMAIL EXPAND TOGGLE -->
-      <button class="email-toggle" id="emailToggle" onclick="toggleEmailForm()">
-        <span class="email-toggle-icon">✉️</span>
-        <span id="emailToggleLabel">Continue with Email</span>
-        <span class="email-toggle-chevron">›</span>
-      </button>
-
-      <!-- EXPANDABLE EMAIL FORM -->
-      <div class="email-form-wrap" id="emailFormWrap">
+      <!-- EMAIL FORM -->
+      <div id="emailFormWrap">
         <div class="email-form-inner">
           <input type="text" class="mof" id="fusername" placeholder="Choose a username">
           <input type="email" class="mof" id="femail" placeholder="Email address">
           <input type="password" class="mof" id="fpassword" placeholder="Password">
+          <div id="forgotLink" style="text-align:right;margin-top:-0.5rem;margin-bottom:0.5rem;display:none;"><a href="#" onclick="showForgotPassword()" style="font-size:0.78rem;color:var(--text3);text-decoration:none;">Forgot password?</a></div>
           <button class="mosub" id="msubmit" onclick="handleAuth()">Create Free Account</button>
         </div>
       </div>
-
       <div class="moterms">By continuing you agree to our <u>Terms</u> and <u>Privacy Policy</u>. No spam, ever.</div>
     </div>
   </div>
@@ -745,9 +757,13 @@ let currentSort = 'latest';
 let currentCategory = 'all';
 let pending = null;
 let currentUser = null;
+try { const _u = localStorage.getItem("cp_user"); if (_u) currentUser = JSON.parse(_u); } catch(e) {}
+
 
 // LIVE FEED
 async function loadFeed() {
+  const pinned = document.getElementById("pinnedStoryCard");
+  if (pinned) pinned.style.display = "";
   try {
     const res = await fetch(`/api/feed?sort=${currentSort}&category=${currentCategory}`);
     const data = await res.json();
@@ -759,14 +775,16 @@ async function loadFeed() {
     }
     
     renderStories(data, container);
+    setTimeout(restoreSaveStates, 100);
+    setTimeout(restoreLikeStates, 150);
   } catch(e) {
     console.error('Feed error:', e);
     document.getElementById('feedContainer').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load stories.</div>';
   }
 }
 
-function renderStories(data, container) {
-    container.innerHTML = data.stories.map((s, i) => {
+function renderStories(data, container, append=false) {
+    const html = data.stories.map((s, i) => {
       const score = parseFloat(s.viralScore) || 0;
       const scoreRounded = Math.round(score);
       const timeAgo = getTimeAgo(s.publishedAt);
@@ -806,14 +824,14 @@ function renderStories(data, container) {
       const img = s.imageUrl ? `<div class="media ${ratio}" onclick="event.stopPropagation()"><img src="${s.imageUrl}" alt="${s.originalTitle}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>` : '';
 
       return `
-  <article class="${cardClass}" onclick="window.open('${s.sourceUrl}','_blank')">
+  <article class="${cardClass}" style="cursor:pointer" onclick="window.open('${s.sourceUrl}','_blank');return false;">
     <div class="pc">
       <div class="pmeta">${breaking}${tag}${category}${featured}<span style="color:var(--text3);font-size:0.85em">${s.sourceName || ''}</span><span style="color:var(--text3)">·</span><span>${timeAgo}</span><span class="score">${scoreRounded}/10</span></div>
       <h3 class="ptitle" style="${titleSize}">${s.originalTitle}</h3>
       ${commentary}
       ${img}
       <div class="abar">
-        <div class="hpill" onclick="event.stopPropagation();requireLogin(()=>likeStory('${s.id}',this))">
+        <div class="hpill" id="like-${s.id}" onclick="event.stopPropagation();requireLogin(()=>likeStory('${s.id}',this))">
           <button class="hbtn"><svg width="18" height="18" viewBox="0 0 24 24"><path class="hsvg" d="M12 21C12 21 3 14.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14.5 12 21 12 21Z"/></svg></button>
           <span class="hcount">${fmtV(s.likes || 0)}</span>
         </div>
@@ -831,11 +849,20 @@ function renderStories(data, container) {
     </div>
   </article>`;
     }).join('');
+    if (append) {
+      container.innerHTML += html;
+    } else {
+      container.innerHTML = html;
+    }
 }
 
 async function loadFeedCatch() {
   try {
     await loadFeed();
+  } catch(e) {
+    console.error('loadFeedCatch error:', e);
+  }
+}
 
 // Load trending topics
 async function loadTrends() {
@@ -847,11 +874,11 @@ async function loadTrends() {
       list.innerHTML = '<div class="trending-item"><div class="trending-label">No trends available</div></div>';
       return;
     }
-    list.innerHTML = data.trends.map(t =>
-      '<div class="trending-item" style="cursor:pointer" onclick="searchTrend(\'' + t.title.replace(/'/g, "\\'") + '\')">' +
+    list.innerHTML = data.trends.map((t, i) =>
+      '<div class="trending-item" style="cursor:pointer" onclick="window.open(\'' + t.url + '\', \'_blank\')">' +
       '<div class="trending-label">🔥 Trending in Canada</div>' +
       '<div class="trending-topic">' + t.title + '</div>' +
-      '<div class="trending-posts">' + t.traffic + ' searches</div>' +
+      '<div class="trending-posts">' + t.traffic + '</div>' +
       '</div>'
     ).join('');
   } catch(e) {
@@ -871,11 +898,6 @@ function searchTrend(term) {
 }
 
 loadTrends();
-  } catch(e) {
-    console.error('Feed error:', e);
-    document.getElementById('feedContainer').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load stories.</div>';
-  }
-}
 
 function getTimeAgo(dateStr) {
   if (!dateStr) return '';
@@ -890,27 +912,38 @@ function getTimeAgo(dateStr) {
 }
 
 loadFeed();
+updateAuthUI();
+
 
 
 // LIKES
 async function likeStory(storyId, pill) {
-  const countEl = pill.querySelector('.hcount');
-  const btn = pill.querySelector('.hbtn');
-  const liked = pill.classList.contains('liked');
-  pill.classList.toggle('liked');
-  const count = parseV(countEl.textContent);
-  countEl.textContent = fmtV(liked ? count - 1 : count + 1);
-  btn.style.color = liked ? '' : '#e8354a';
+  const countEl = pill.querySelector(".hcount");
+  const btn = pill.querySelector(".hbtn");
+  const svg = pill.querySelector(".hsvg");
+  const liked = pill.classList.contains("liked");
+  const token = localStorage.getItem("cp_token");
   try {
-    const token = localStorage.getItem('cp_token');
-    await fetch('/api/stories/' + storyId + '/like', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ liked: !liked })
+    const res = await fetch("/api/stories/" + storyId + "/like", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" }
     });
-  } catch(e) {}
+    const data = await res.json();
+    if (data.liked) {
+      pill.classList.add("liked");
+      btn.style.color = "#e8354a";
+      svg.style.fill = "var(--red)";
+      svg.style.stroke = "var(--red)";
+      countEl.textContent = fmtV(parseV(countEl.textContent) + 1);
+    } else {
+      pill.classList.remove("liked");
+      btn.style.color = "";
+      svg.style.fill = "none";
+      svg.style.stroke = "currentColor";
+      countEl.textContent = fmtV(parseV(countEl.textContent) - 1);
+    }
+  } catch(e) { console.error("Like failed", e); }
 }
-
 // COMMENTS
 async function toggleComments(storyId, btn) {
   const section = document.getElementById('comments-' + storyId);
@@ -1061,11 +1094,99 @@ function openSearch(){
   document.getElementById('searchOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('searchInput').focus(),50);
 }
-function closeSearch(){
+function closeSearch(restoreFeed=false){
   document.getElementById('searchOverlay').classList.remove('open');
   document.getElementById('searchInput').value='';
+  const dropdown = document.getElementById('searchDropdown');
+  if (dropdown) dropdown.style.display = 'none';
+  if (restoreFeed) {
+    currentSearchTerm = '';
+    currentPage = 1;
+    loadFeed();
+  }
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSearch();closeModal();}});
+
+let currentSearchTerm = '';
+
+async function executeSearch(term) {
+  console.log('executeSearch called with:', term);
+  if (!term.trim()) return;
+  currentSearchTerm = term.trim();
+  closeSearch(false);
+  const container = document.getElementById('feedContainer');
+  container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Searching...</div>';
+  try {
+    const params = new URLSearchParams({ search: currentSearchTerm, limit: 50 });
+    const res = await fetch(`/api/feed/search?${params}`);
+    const data = await res.json();
+    if (!data.stories || data.stories.length === 0) {
+      container.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--text3);">No results found for "<strong style="color:var(--text)">${currentSearchTerm}</strong>"</div>`;
+      return;
+    }
+    console.log('Search results:', data.stories.length, 'stories');
+    const header = `<div style="padding:0.75rem 0 1rem;color:var(--text3);font-size:0.85rem;">${data.stories.length} results for "<strong style="color:var(--text)">${currentSearchTerm}</strong>" <button onclick="clearSearch()" style="margin-left:0.5rem;background:none;border:1px solid #444;color:var(--text3);padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;">✕ Clear</button></div>`;
+    container.innerHTML = header;
+    console.log('About to renderStories, container:', container.id);
+    renderStories(data, container, true);
+    console.log('renderStories done, container html length:', container.innerHTML.length);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) {
+    container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Search failed. Try again.</div>';
+  }
+}
+
+function clearSearch() {
+  currentSearchTerm = '';
+  currentPage = 1;
+  loadFeed();
+}
+
+// Also restore feed when Escape is pressed
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('searchOverlay');
+    if (overlay && overlay.classList.contains('open')) {
+      closeSearch(false);
+    }
+  }
+});
+
+let liveSearchTimeout = null;
+async function liveSearch(term) {
+  clearTimeout(liveSearchTimeout);
+  const dropdown = document.getElementById('searchDropdown');
+  if (!term || term.length < 2) { 
+    if (dropdown) dropdown.style.display = 'none'; 
+    return; 
+  }
+  liveSearchTimeout = setTimeout(async () => {
+    try {
+      const res = await fetch(`/api/feed/search?search=${encodeURIComponent(term)}&limit=5`);
+      const data = await res.json();
+      if (!dropdown) return;
+      if (!data.stories || data.stories.length === 0) { 
+        dropdown.style.display = 'none'; 
+        return; 
+      }
+      dropdown.innerHTML = data.stories.map(s => 
+        `<div class="search-suggestion" onclick="executeSearch('${s.originalTitle.replace(/'/g,"\'")}')">
+          ${s.imageUrl ? `<img src="${s.imageUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.originalTitle}</div>
+            <div style="font-size:0.75rem;color:var(--text3);">${s.sourceName || ''} · ${s.category || ''}</div>
+          </div>
+        </div>`
+      ).join('');
+      dropdown.style.display = 'block';
+    } catch(e) {}
+  }, 200);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeSearch(); closeModal(); }
+});
+
+
 
 // VIDEO
 let vPlaying=false,vProg=0,vInt=null;
@@ -1112,7 +1233,12 @@ function openModal(m){
   document.getElementById('emailToggle').classList.remove('open');
   document.getElementById('emailToggle').querySelector('.email-toggle-chevron').style.transform='';
 }
-function closeModal(){document.getElementById('modal').classList.remove('open');pending=null;}
+function closeModal(){
+  const mob = document.querySelector(".mob");
+  if (mob.dataset.original) { mob.innerHTML = mob.dataset.original; delete mob.dataset.original; }
+  document.getElementById("modal").classList.remove("open");
+  pending=null;
+}
 
 function switchTab(m){
   const s=m==='signup';
@@ -1121,14 +1247,13 @@ function switchTab(m){
   document.getElementById('mtitle').innerHTML=s?'Join <span style="color:var(--red)">CanadianPulse</span>':'Welcome <span style="color:var(--red)">Back</span>';
   document.getElementById('msub').textContent=s?'Where Canada debates what matters.':'Good to have you back.';
   // Update social button labels
-  document.getElementById('google-label').textContent=s?'Continue with Google':'Sign in with Google';
-  document.getElementById('apple-label').textContent=s?'Continue with Apple':'Sign in with Apple';
-  document.getElementById('fb-label').textContent=s?'Continue with Facebook':'Sign in with Facebook';
+
   // Username field only for signup
   const uField=document.getElementById('fusername');
   if(uField) uField.style.display=s?'block':'none';
-  document.getElementById('msubmit').textContent=s?'Create Free Account':'Log In';
-  document.getElementById('emailToggleLabel').textContent=s?'Continue with Email':'Sign in with Email';
+  document.getElementById("msubmit").textContent=s?"Create Free Account":"Log In";
+  const fl=document.getElementById("forgotLink"); if(fl) fl.style.display=s?"none":"block";
+
 }
 
 function toggleEmailForm(){
@@ -1183,14 +1308,30 @@ async function handleAuth() {
 
 function updateAuthUI() {
   const user = currentUser;
-  const loginBtn = document.querySelector('.btn-outline');
-  const joinBtn = document.querySelector('.btn-red');
+  const loginBtn = document.getElementById("loginBtn");
+  const joinBtn = document.getElementById("joinBtn");
+  const profileWrap = document.getElementById("profileWrap");
+  const profileAvatar = document.getElementById("profileAvatar");
+  const profileName = document.getElementById("profileName");
+  const pdUsername = document.getElementById("pdUsername");
+  const pdEmail = document.getElementById("pdEmail");
   if (user) {
-    if (loginBtn) loginBtn.textContent = user.username;
-    if (joinBtn) { joinBtn.textContent = 'Log Out'; joinBtn.onclick = logout; }
+    if (loginBtn) loginBtn.style.display = "none";
+    if (joinBtn) joinBtn.style.display = "none";
+    if (profileWrap) profileWrap.style.display = "flex";
+    const jpBtn = document.getElementById("joinPulseBtn"); if (jpBtn) jpBtn.style.display = "none";
+    const ctaSub = document.getElementById("leftCtaSub"); if (ctaSub) ctaSub.style.display = "none";
+    const color = user.avatarUrl || getAvatarColor(user.username);
+    if (profileAvatar) { profileAvatar.textContent = user.username[0].toUpperCase(); profileAvatar.style.background = color; }
+    if (profileName) profileName.textContent = user.username;
+    if (pdUsername) pdUsername.textContent = user.username;
+    if (pdEmail) pdEmail.textContent = user.email || "";
   } else {
-    if (loginBtn) { loginBtn.textContent = 'Log In'; loginBtn.onclick = () => openModal('login'); }
-    if (joinBtn) { joinBtn.textContent = 'Join Free'; joinBtn.onclick = () => openModal('signup'); }
+    if (loginBtn) { loginBtn.style.display = ""; loginBtn.textContent = "Log In"; loginBtn.onclick = () => openModal("login"); }
+    if (joinBtn) { joinBtn.style.display = ""; joinBtn.textContent = "Join Free"; joinBtn.onclick = () => openModal("signup"); }
+    if (profileWrap) profileWrap.style.display = "none";
+    const jpBtn = document.getElementById("joinPulseBtn"); if (jpBtn) jpBtn.style.display = "";
+    const ctaSub = document.getElementById("leftCtaSub"); if (ctaSub) ctaSub.style.display = "";
   }
 }
 
@@ -1298,6 +1439,8 @@ function copyLink(url) {
   closeShareMenu();
 }
 async function showSaved(el) {
+  const pinned = document.getElementById("pinnedStoryCard");
+  if (pinned) pinned.style.display = "none";
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
   if (el) el.classList.add('active');
   currentCategory = 'saved';
@@ -1314,6 +1457,8 @@ async function showSaved(el) {
     // Reuse loadFeed render logic by temporarily setting stories
     const fakeData = { stories: data.stories, total: data.stories.length };
     renderStories(fakeData, container);
+    setTimeout(restoreSaveStates, 100);
+    setTimeout(restoreLikeStates, 150);
   } catch(e) {
     container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load saved stories.</div>';
   }
@@ -1378,3 +1523,320 @@ try{if(localStorage.getItem('cp-theme')==='light'){document.body.classList.add('
 </script>
 </body>
 </html>
+
+<script>
+let currentView = 'home';
+
+function showExplore(term) {
+  const pinned = document.getElementById("pinnedStoryCard");
+  if (pinned) pinned.style.display = "none";
+  currentView = 'explore';
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  const exploreNav = document.getElementById('nav-explore');
+  if (exploreNav) exploreNav.classList.add('active');
+
+  const container = document.getElementById('feedContainer');
+
+  if (!term || !term.trim()) {
+    container.innerHTML = `
+      <div style="padding:3rem 1rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:1rem;">🔍</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:0.75rem;color:var(--text);">Explore Canada's News</div>
+        <div style="font-size:0.9rem;color:var(--text2);margin-bottom:1.5rem;">Search for any topic, story, or source</div>
+        <div style="display:flex;gap:0.5rem;max-width:480px;margin:0 auto;">
+          <input id="exploreInput" placeholder="Search Canada's news…" type="text"
+            style="flex:1;padding:0.875rem 1.25rem;border-radius:12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:1rem;outline:none;font-family:'Sora',sans-serif;"
+            onkeydown="if(event.key==='Enter')showExplore(this.value)">
+          <button onclick="showExplore(document.getElementById('exploreInput').value)"
+            style="padding:0.875rem 1.25rem;background:var(--red);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;font-family:'Sora',sans-serif;">
+            Search
+          </button>
+        </div>
+      </div>`;
+    setTimeout(() => { const inp = document.getElementById('exploreInput'); if (inp) inp.focus(); }, 50);
+    return;
+  }
+
+  currentSearchTerm = term.trim();
+  closeSearch(false);
+  container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Searching...</div>';
+
+  fetch(`/api/feed/search?${new URLSearchParams({ search: currentSearchTerm, limit: 50 })}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.stories || data.stories.length === 0) {
+        container.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--text3);">No results for "<strong style="color:var(--text)">${currentSearchTerm}</strong>"<br><button onclick="showExplore()" style="margin-top:1rem;background:none;border:1px solid var(--border2);color:var(--text2);padding:0.4rem 1rem;border-radius:20px;cursor:pointer;font-family:'Sora',sans-serif;">Search again</button></div>`;
+        return;
+      }
+      const header = `<div style="padding:0.75rem 0 1rem;color:var(--text3);font-size:0.85rem;">${data.stories.length} results for "<strong style="color:var(--text)">${currentSearchTerm}</strong>" <button onclick="goHome()" style="margin-left:0.5rem;background:none;border:1px solid #444;color:var(--text3);padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;">✕ Clear</button></div>`;
+      container.innerHTML = header;
+      renderStories(data, container, true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(() => {
+      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Search failed. Try again.</div>';
+    });
+}
+
+function restoreLikeStates() {
+  const token = localStorage.getItem("cp_token");
+  if (!token || !currentUser) return;
+  fetch("/api/likes", { headers: { "Authorization": "Bearer " + token } })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.storyIds) return;
+      data.storyIds.forEach(id => {
+        const pill = document.getElementById("like-" + id);
+        if (pill) {
+          pill.classList.add("liked");
+          const btn = pill.querySelector(".hbtn");
+          const svg = pill.querySelector(".hsvg");
+          if (btn) btn.style.color = "#e8354a";
+          if (svg) { svg.style.fill = "var(--red)"; svg.style.stroke = "var(--red)"; }
+        }
+      });
+    })
+    .catch(() => {});
+}
+
+function restoreSaveStates() {
+  const token = localStorage.getItem("cp_token");
+  if (!token || !currentUser) return;
+  fetch("/api/saves", { headers: { "Authorization": "Bearer " + token } })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.stories) return;
+      data.stories.forEach(s => {
+        const btn = document.getElementById("save-" + s.id);
+        if (btn) {
+          btn.classList.add("saved");
+          btn.style.color = "var(--gold)";
+          btn.style.borderColor = "rgba(245,166,35,0.3)";
+        }
+      });
+    })
+    .catch(() => {});
+}
+
+function goHome() {
+  const pinned = document.getElementById("pinnedStoryCard");
+  if (pinned) pinned.style.display = "";
+  currentView = 'home';
+  currentSearchTerm = '';
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  document.querySelector('.nav-item:first-child').classList.add('active');
+  loadFeed();
+}
+</script>
+
+<script>
+const avatarColors = ["#e8354a","#4a9eff","#2ecc71","#f5a623","#9b59b6","#e67e22","#1abc9c","#e91e63"];
+
+function getAvatarColor(username) {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
+function toggleProfileDropdown() {
+  const dd = document.getElementById("profileDropdown");
+  dd.classList.toggle("open");
+  if (dd.classList.contains("open")) {
+    setTimeout(() => document.addEventListener("click", closeProfileDropdown, { once: true }), 0);
+  }
+}
+
+function closeProfileDropdown() {
+  const dd = document.getElementById("profileDropdown");
+  if (dd) dd.classList.remove("open");
+}
+
+function showSavedFromProfile() {
+  closeProfileDropdown();
+  requireLogin(() => showSaved(null));
+}
+
+function showLikedFromProfile() {
+  closeProfileDropdown();
+  showLiked();
+}
+
+function showProfileSettings() {
+  closeProfileDropdown();
+  openSettings();
+}
+
+async function showLiked(el) {
+  document.querySelectorAll(".nav-item").forEach(x => x.classList.remove("active"));
+  if (el) el.classList.add("active");
+  const pinned = document.getElementById("pinnedStoryCard");
+  if (pinned) pinned.style.display = "none";
+  const container = document.getElementById("feedContainer");
+  container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Loading liked stories...</div>';
+  const token = localStorage.getItem("cp_token");
+  try {
+    const res = await fetch("/api/likes", { headers: { "Authorization": "Bearer " + token } });
+    const data = await res.json();
+    if (!data.storyIds || data.storyIds.length === 0) {
+      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">No liked stories yet.</div>';
+      return;
+    }
+    const feedRes = await fetch("/api/feed?limit=50");
+    const feedData = await feedRes.json();
+    const liked = feedData.stories.filter(s => data.storyIds.includes(s.id));
+    if (liked.length === 0) {
+      container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">No liked stories found.</div>';
+      return;
+    }
+    renderStories({ stories: liked }, container);
+    setTimeout(restoreLikeStates, 100);
+    setTimeout(restoreSaveStates, 100);
+  } catch(e) {
+    container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Failed to load.</div>';
+  }
+}
+</script>
+
+<style>
+#settingsModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;}
+#settingsModal.open{display:flex;}
+.settings-box{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2rem;width:100%;max-width:420px;position:relative;}
+.settings-title{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--text);margin-bottom:1.5rem;}
+.settings-label{font-size:0.78rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;}
+.settings-input{width:100%;padding:0.75rem 1rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;margin-bottom:1rem;}
+.settings-input:focus{border-color:var(--border2);}
+.color-picker{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fff;}
+.color-swatch.selected{border-color:#fff;transform:scale(1.15);}
+.settings-save{width:100%;padding:0.75rem;background:var(--red);border:none;border-radius:10px;color:#fff;font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:0.5rem;}
+.settings-save:hover{background:var(--red2);}
+.settings-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;}
+</style>
+
+<div id="settingsModal">
+  <div class="settings-box">
+    <button class="settings-close" onclick="closeSettings()">✕</button>
+    <div class="settings-title">Account Settings</div>
+    <div class="settings-label">Avatar Color</div>
+    <div class="color-picker" id="colorPicker"></div>
+    <div class="settings-label">Change Username</div>
+    <input class="settings-input" id="settingsUsername" placeholder="New username">
+    <div class="settings-label">Change Password</div>
+    <input class="settings-input" id="settingsPassword" type="password" placeholder="New password (leave blank to keep)">
+    <button class="settings-save" onclick="saveSettings()">Save Changes</button>
+  </div>
+</div>
+
+<script>
+const AVATAR_COLORS = ["#e8354a","#4a9eff","#2ecc71","#f5a623","#9b59b6","#e67e22","#1abc9c","#e91e63"];
+let selectedAvatarColor = null;
+
+function openSettings() {
+  const modal = document.getElementById("settingsModal");
+  modal.classList.add("open");
+  const picker = document.getElementById("colorPicker");
+  picker.innerHTML = "";
+  const currentColor = currentUser?.avatarUrl || getAvatarColor(currentUser?.username || "U");
+  AVATAR_COLORS.forEach(color => {
+    const sw = document.createElement("div");
+    sw.className = "color-swatch" + (color === currentColor ? " selected" : "");
+    sw.style.background = color;
+    sw.textContent = currentUser?.username?.[0]?.toUpperCase() || "U";
+    sw.onclick = () => {
+      document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("selected"));
+      sw.classList.add("selected");
+      selectedAvatarColor = color;
+    };
+    picker.appendChild(sw);
+  });
+  selectedAvatarColor = currentColor;
+  document.getElementById("settingsUsername").value = currentUser?.username || "";
+  document.getElementById("settingsPassword").value = "";
+}
+
+function closeSettings() {
+  document.getElementById("settingsModal").classList.remove("open");
+}
+
+async function saveSettings() {
+  const username = document.getElementById("settingsUsername").value.trim();
+  const password = document.getElementById("settingsPassword").value;
+  const token = localStorage.getItem("cp_token");
+  const body = {};
+  if (username && username !== currentUser.username) body.username = username;
+  if (password) body.password = password;
+  if (selectedAvatarColor) body.avatarColor = selectedAvatarColor;
+  if (Object.keys(body).length === 0) { closeSettings(); return; }
+  try {
+    const res = await fetch("/api/auth/update", {
+      method: "PUT",
+      headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.error) { showToast(data.error, "error"); return; }
+    localStorage.setItem("cp_token", data.token);
+    localStorage.setItem("cp_user", JSON.stringify(data.user));
+    currentUser = data.user;
+    updateAuthUI();
+    closeSettings();
+    showToast("✅ Settings saved!");
+  } catch(e) {
+    showToast("Failed to save settings", "error");
+  }
+}
+</script>
+
+<script>
+function showForgotPassword() {
+  const mob = document.querySelector(".mob");
+  mob.dataset.original = mob.innerHTML;
+  mob.innerHTML = `
+    <div style="padding:0.5rem 0 1.5rem;">
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.25rem;">Reset Password</div>
+      <div style="font-size:0.85rem;color:var(--text3);margin-bottom:1.25rem;">Enter your email to get a reset link.</div>
+      <div id="forgotMsg" style="display:none;padding:0.75rem 1rem;border-radius:10px;font-size:0.85rem;margin-bottom:1rem;"></div>
+      <input type="email" class="mof" id="forgotEmail" placeholder="Your email address" style="margin-bottom:0.75rem;">
+      <div id="resetLinkBox" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:0.8rem;color:var(--text2);word-break:break-all;"></div>
+      <button class="mosub" onclick="submitForgotPassword()">Generate Reset Link</button>
+      <div style="text-align:center;margin-top:1rem;"><a href="#" onclick="restoreLoginModal()" style="font-size:0.82rem;color:var(--text3);text-decoration:none;">← Back to Log In</a></div>
+    </div>
+  `;
+}
+
+function restoreLoginModal() {
+  const mob = document.querySelector(".mob");
+  if (mob.dataset.original) mob.innerHTML = mob.dataset.original;
+  switchTab("login");
+}
+
+async function submitForgotPassword() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const msg = document.getElementById('forgotMsg');
+  const linkBox = document.getElementById('resetLinkBox');
+  if (!email) { showForgotMsg('Please enter your email.', 'error'); return; }
+  try {
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.error) { showForgotMsg(data.error, 'error'); return; }
+    showForgotMsg('Reset link generated! Click it below to reset your password.', 'success');
+    linkBox.style.display = 'block';
+    linkBox.innerHTML = `<a href="${data.resetLink}" style="color:var(--red);">${window.location.origin}${data.resetLink}</a>`;
+  } catch(e) {
+    showForgotMsg('Something went wrong. Try again.', 'error');
+  }
+}
+
+function showForgotMsg(text, type) {
+  const msg = document.getElementById('forgotMsg');
+  msg.textContent = text;
+  msg.style.display = 'block';
+  msg.style.background = type === 'success' ? 'rgba(46,204,113,0.15)' : 'rgba(232,53,74,0.15)';
+  msg.style.border = type === 'success' ? '1px solid rgba(46,204,113,0.3)' : '1px solid rgba(232,53,74,0.3)';
+  msg.style.color = type === 'success' ? '#2ecc71' : '#e8354a';
+}
+</script>

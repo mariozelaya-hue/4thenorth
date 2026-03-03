@@ -409,3 +409,37 @@ router.get('/logs', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+// POST /admin/stories/:id/pin - pin a story to top of feed
+router.post('/stories/:id/pin', auth, async (req, res) => {
+  try {
+    await prisma.story.updateMany({
+      where: { isPinned: true },
+      data: { isPinned: false, pinnedAt: null },
+    });
+    const story = await prisma.story.update({
+      where: { id: req.params.id },
+      data: { isPinned: true, pinnedAt: new Date() },
+    });
+    await audit.log('story.pinned', req.admin.username, { storyId: story.id });
+    res.json({ success: true, story });
+  } catch (err) {
+    console.error('Pin error:', err);
+    res.status(500).json({ error: 'Failed to pin story' });
+  }
+});
+
+// POST /admin/stories/:id/unpin - unpin a story
+router.post('/stories/:id/unpin', auth, async (req, res) => {
+  try {
+    const story = await prisma.story.update({
+      where: { id: req.params.id },
+      data: { isPinned: false, pinnedAt: null },
+    });
+    await audit.log('story.unpinned', req.admin.username, { storyId: story.id });
+    res.json({ success: true, story });
+  } catch (err) {
+    console.error('Unpin error:', err);
+    res.status(500).json({ error: 'Failed to unpin story' });
+  }
+});

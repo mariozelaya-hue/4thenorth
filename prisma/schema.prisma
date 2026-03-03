@@ -35,6 +35,8 @@ model Story {
   category            String?     @db.VarChar(50)
   isFeatured          Boolean     @default(false) @map("is_featured")
   isBreaking          Boolean     @default(false) @map("is_breaking")
+  isPinned            Boolean     @default(false) @map("is_pinned")
+  pinnedAt            DateTime?   @map("pinned_at")
   cardStyle           String?     @default("")
   tags                String[]    @default([])
   sourceHash          String      @unique @map("source_hash") @db.VarChar(64)
@@ -42,6 +44,7 @@ model Story {
   updatedAt           DateTime    @updatedAt @map("updated_at")
 
   savedBy     SavedStory[]
+  likedBy     StoryLike[]
 
   @@map("stories")
   @@index([status, publishedAt(sort: Desc)])
@@ -95,6 +98,8 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   comments     Comment[]
   savedStories SavedStory[]
+  likedStories StoryLike[]
+  passwordResets PasswordReset[]
 
   @@map("users")
 }
@@ -124,4 +129,28 @@ model SavedStory {
 
   @@unique([userId, storyId])
   @@map("saved_stories")
+}
+
+model StoryLike {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  storyId   String   @map("story_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
+  story     Story    @relation(fields: [storyId], references: [id])
+
+  @@unique([userId, storyId])
+  @@map("story_likes")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("password_resets")
 }

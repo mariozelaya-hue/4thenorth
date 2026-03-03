@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({ data: { username, email, passwordHash } });
     const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+    res.json({ token, user: { id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl } });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ error: 'Registration failed' });
@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
     if (!valid) return res.status(400).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+    res.json({ token, user: { id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl } });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
@@ -65,3 +65,70 @@ router.get('/me', async (req, res) => {
 });
 
 module.exports = router;
+
+router.put('/update', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'Login required' });
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { username, password, avatarColor } = req.body;
+
+    const updateData = {};
+
+    if (username) {
+      if (username.length < 3) return res.status(400).json({ error: 'Username must be at least 3 characters' });
+      const existing = await prisma.user.findFirst({ where: { username, NOT: { id: decoded.id } } });
+      if (existing) return res.status(400).json({ error: 'Username already taken' });
+      updateData.username = username;
+    }
+
+    if (password) {
+      if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      updateData.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    if (avatarColor) updateData.avatarUrl = avatarColor;
+
+    const user = await prisma.user.update({ where: { id: decoded.id }, data: updateData });
+    const newToken = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '30d' });
+    res.json({ token: newToken, user: { id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl } });
+  } catch (err) {
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
+const crypto = require('crypto');
+
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(400).json({ error: 'No account found with that email' });
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await prisma.passwordReset.create({ data: { userId: user.id, token, expiresAt } });
+    const resetLink = `/reset-password?token=${token}`;
+    res.json({ resetLink, message: 'Reset link generated' });
+  } catch(err) {
+    res.status(500).json({ error: 'Failed to generate reset link' });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    const reset = await prisma.passwordReset.findUnique({ where: { token } });
+    if (!reset || reset.used || reset.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'Reset link is invalid or expired' });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    await prisma.user.update({ where: { id: reset.userId }, data: { passwordHash } });
+    await prisma.passwordReset.update({ where: { token }, data: { used: true } });
+    res.json({ message: 'Password reset successfully' });
+  } catch(err) {
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});

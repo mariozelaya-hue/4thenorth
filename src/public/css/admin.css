@@ -219,3 +219,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica
 .modal-tag{padding:0.3rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1px solid #333;color:#888;transition:all 0.15s;user-select:none;background:transparent;}
 .modal-tag:hover{border-color:#555;color:#ccc;}
 .modal-tag.active{background:#e8354a;border-color:#e8354a;color:#fff;}
+
+/* Pin button styles */
+.action-pin {
+  background: transparent;
+  border: 1px solid #444;
+  color: #888;
+}
+.action-pin:hover {
+  background: rgba(255, 200, 0, 0.1);
+  border-color: #ffc800;
+  color: #ffc800;
+}
+.action-pinned {
+  background: rgba(255, 200, 0, 0.15);
+  border: 1px solid #ffc800;
+  color: #ffc800;
+}
+.action-pinned:hover {
+  background: rgba(255, 80, 80, 0.1);
+  border-color: #ff5050;
+  color: #ff5050;
+}
+.flag-pinned {
+  background: rgba(255, 200, 0, 0.15);
+  color: #ffc800;
+  border: 1px solid rgba(255, 200, 0, 0.3);
+}

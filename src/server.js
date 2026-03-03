@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const commentRoutes = require('./routes/comments');
 const savesRoutes = require('./routes/saves');
 const trendsRoutes = require('./routes/trends');
+const prisma = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -63,8 +64,21 @@ app.get('/api/health', (req, res) => {
 });
 
 // Home - public frontend
-app.get('/', (req, res) => {
-  res.render('index');
+app.get('/', async (req, res) => {
+  try {
+    const pinnedStory = await prisma.story.findFirst({
+      where: { isPinned: true, status: 'published' },
+    });
+    res.render('index', { pinnedStory: pinnedStory || null });
+  } catch (err) {
+    console.error('Home route error:', err);
+    res.render('index', { pinnedStory: null });
+  }
+});
+
+// Reset password page
+app.get("/reset-password", (req, res) => {
+  res.render("reset-password");
 });
 
 // Error handler

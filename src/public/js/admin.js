@@ -126,7 +126,7 @@ function renderCard(s) {
     <input type="checkbox" class="story-card-check" onclick="event.stopPropagation();toggleSelect('${s.id}',this)" ${selectedIds.has(s.id)?'checked':''}>
     <div class="story-card-body">
       <div class="story-card-top">
-        ${s.editorialTag?`<span class="tag-pill">${esc(s.editorialTag)}</span>`:''}
+        
         <span class="status-pill ${sc}">${s.status}</span>
         ${s.category?`<span class="cat-pill">${esc(s.category)}</span>`:''}
         ${s.isFeatured?'<span class="flag-pill flag-featured">★ Featured</span>':''}
@@ -144,6 +144,7 @@ function renderCard(s) {
     <div class="story-card-actions">
       <button class="action-btn action-edit" onclick="event.stopPropagation();openEditModal('${s.id}')">Edit</button>
       ${publishBtn}
+    ${s.status === 'published' ? `<button class="action-btn ${s.isPinned ? 'action-pinned' : 'action-pin'}" onclick="event.stopPropagation();togglePin('${s.id}',${s.isPinned})">${s.isPinned ? '📌 Pinned' : '📌 Pin'}</button>` : ''}
     </div>
   </div>`;
 }
@@ -277,3 +278,26 @@ async function modalDelete() {
 }
 
 function esc(str) { if (!str) return ''; return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+
+async function togglePin(storyId, currentlyPinned) {
+  const action = currentlyPinned ? 'unpin' : 'pin';
+  const msg = currentlyPinned
+    ? 'Unpin this story from the top of the feed?'
+    : 'Pin this story to the top of the feed?\n\nAny currently pinned story will be replaced.';
+  if (!confirm(msg)) return;
+  try {
+    const res = await fetch(`/admin/stories/${storyId}/${action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast(currentlyPinned ? 'Story unpinned.' : '📌 Story pinned to top of feed!', 'success');
+      loadStories();
+    } else {
+      toast('Failed: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    toast('Network error.', 'error');
+  }
+}
