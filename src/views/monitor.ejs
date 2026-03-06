@@ -6,6 +6,7 @@
 <title>News Monitor — CanadianPulse Admin</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7);cursor:pointer;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0b;color:#e8e8ee;min-height:100vh;}
 .header{background:#111113;border-bottom:1px solid #2a2a30;padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;}
 .header-left{display:flex;align-items:center;gap:1rem;}
@@ -121,13 +122,45 @@ tr:hover td{background:#111113;}
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- RIGHT: Recent results -->
+      <!-- SOURCES PANEL -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📡 News Sources (<span id="activeCount">...</span> active)</span>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="clear-btn" onclick="toggleAllSources(true)">Enable All</button>
+            <button class="clear-btn" onclick="toggleAllSources(false)">Disable All</button>
+          </div>
+        </div>
+        <div class="card-body" style="max-height:400px;overflow-y:auto;">
+          <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;">
+            <input class="topic-input" id="newSourceName" placeholder="Source name (e.g. CBC News)">
+            <div style="display:flex;gap:0.5rem;">
+              <input class="topic-input" id="newSourceUrl" placeholder="RSS feed URL" style="flex:1;">
+              <button class="add-btn" onclick="addSource()">+ Add</button>
+            </div>
+          </div>
+          <div id="sourceList" style="display:flex;flex-direction:column;gap:0.4rem;">
+            <div style="color:#555560;font-size:0.85rem;padding:1rem;">Loading sources...</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-header">
-        <span class="card-title">📰 Recent Articles (Last 50)</span>
+        <span class="card-title">📰 Articles (<span id="articleCount">...</span>)</span>
         <span style="font-size:0.75rem;color:#555560;">Scores 7+ auto-promoted to pipeline</span>
+      </div>
+      <div style="padding:0.75rem 1.25rem;border-bottom:1px solid #2a2a30;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="articleSearch" placeholder="Search articles..." style="flex:1;min-width:180px;padding:0.5rem 0.75rem;background:#0a0a0b;border:1px solid #2a2a30;border-radius:8px;color:#e8e8ee;font-size:0.82rem;outline:none;" />
+        <select id="articleLimit" style="padding:0.5rem 0.75rem;background:#0a0a0b;border:1px solid #2a2a30;border-radius:8px;color:#e8e8ee;font-size:0.82rem;cursor:pointer;">
+          <option value="50">50 per page</option>
+          <option value="100">100 per page</option>
+          <option value="200">200 per page</option>
+        </select>
+        <input type="date" id="articleFrom" style="padding:0.5rem 0.75rem;background:#0a0a0b;border:1px solid #2a2a30;border-radius:8px;color:#e8e8ee;font-size:0.82rem;" title="From date" />
+        <span style="color:#555560;font-size:0.8rem;">to</span>
+        <input type="date" id="articleTo" style="padding:0.5rem 0.75rem;background:#0a0a0b;border:1px solid #2a2a30;border-radius:8px;color:#e8e8ee;font-size:0.82rem;" title="To date" />
       </div>
       <div class="table-wrap">
         <table>
@@ -140,58 +173,15 @@ tr:hover td{background:#111113;}
               <th>Status</th>
             </tr>
           </thead>
-          <tbody>
-            <% if (recentCache.length === 0) { %>
-              <tr><td colspan="5" style="text-align:center;padding:2rem;color:#555560;">No articles yet. Run the monitor to fetch articles.</td></tr>
-            <% } else { %>
-              <% recentCache.forEach(a => { %>
-                <tr>
-                  <td>
-                    <a href="<%= a.url %>" target="_blank" style="color:#e8e8ee;text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><%= a.title %></a>
-                    <% if (a.aiCommentary) { %><div style="font-size:0.75rem;color:#555560;margin-top:0.2rem;font-style:italic;"><%= a.aiCommentary %></div><% } %>
-                  </td>
-                  <td><span class="source-tag"><%= a.sourceName %></span></td>
-                  <td>
-                    <% if (a.aiScore >= 7) { %>
-                      <span class="score-badge score-high"><%= a.aiScore %>/10</span>
-                    <% } else if (a.aiScore >= 4) { %>
-                      <span class="score-badge score-mid"><%= a.aiScore %>/10</span>
-                    <% } else { %>
-                      <span class="score-badge score-low"><%= a.aiScore %>/10</span>
-                    <% } %>
-                  </td>
-                  <td style="font-size:0.75rem;"><%= a.aiCategory || '—' %></td>
-                  <td><% if (a.promoted) { %><span class="promoted-badge">✓ Promoted</span><% } else { %><span style="font-size:0.75rem;color:#555560;">Monitored</span><% } %></td>
-                </tr>
-              <% }) %>
-            <% } %>
+          <tbody id="articlesBody">
+            <tr><td colspan="5" style="text-align:center;padding:2rem;color:#555560;">Loading articles...</td></tr>
           </tbody>
         </table>
       </div>
+      <div id="articlePagination" style="padding:0.75rem 1.25rem;border-top:1px solid #2a2a30;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;color:#888896;"></div>
     </div>
   </div>
 
-  <!-- SOURCES PANEL -->
-  <div class="card" style="margin-top:1.5rem;">
-    <div class="card-header">
-      <span class="card-title">📡 News Sources (<span id="activeCount">...</span> active)</span>
-      <div style="display:flex;gap:0.5rem;">
-        <button class="clear-btn" onclick="toggleAllSources(true)">Enable All</button>
-        <button class="clear-btn" onclick="toggleAllSources(false)">Disable All</button>
-      </div>
-    </div>
-    <div class="card-body">
-      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
-        <input class="topic-input" id="newSourceName" placeholder="Source name (e.g. CBC News)" style="flex:1;">
-        <input class="topic-input" id="newSourceUrl" placeholder="RSS feed URL" style="flex:2;">
-        <button class="add-btn" onclick="addSource()">+ Add</button>
-      </div>
-      <div id="sourceList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.4rem;">
-        <div style="color:#555560;font-size:0.85rem;padding:1rem;">Loading sources...</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
 // Load sources on page load
@@ -275,6 +265,77 @@ async function toggleAllSources(enable) {
 }
 
 loadSources();
+
+// Articles search, filter, pagination
+let articlePage = 1;
+let articleSearchTimer = null;
+
+async function loadArticles() {
+  const search = document.getElementById("articleSearch").value.trim();
+  const limit = document.getElementById("articleLimit").value;
+  const body = document.getElementById("articlesBody");
+  const pagination = document.getElementById("articlePagination");
+  try {
+    const params = new URLSearchParams({ limit, page: articlePage });
+    if (search) params.set("search", search);
+    const fromDate = document.getElementById("articleFrom").value;
+    const toDate = document.getElementById("articleTo").value;
+    if (fromDate) params.set("from", fromDate);
+    if (toDate) params.set("to", toDate);
+    const res = await fetch("/admin/monitor/articles?" + params);
+    const data = await res.json();
+    document.getElementById("articleCount").textContent = data.total + " total";
+    if (!data.articles.length) {
+      body.innerHTML = "<tr><td colspan=5 style=text-align:center;padding:2rem;color:#555560;>No articles found.</td></tr>";
+      pagination.innerHTML = "";
+      return;
+    }
+    body.innerHTML = data.articles.map(a => {
+      const scoreClass = a.aiScore >= 7 ? "score-high" : a.aiScore >= 4 ? "score-mid" : "score-low";
+      const commentary = a.aiCommentary ? "<div style=\"font-size:0.75rem;color:#555560;margin-top:0.2rem;font-style:italic;\">" + a.aiCommentary + "</div>" : "";
+      const status = a.promoted ? "<span class=\"promoted-badge\">✓ Promoted</span>" : "<span style=\"font-size:0.75rem;color:#555560;\">Monitored</span>";
+      return "<tr>" +
+        "<td><a href=\"" + a.url + "\" target=_blank style=\"color:#e8e8ee;text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;\">" + a.title + "</a>" + commentary + "</td>" +
+        "<td><span class=source-tag>" + a.sourceName + "</span></td>" +
+        "<td><span class=\"score-badge " + scoreClass + "\">" + (a.aiScore || "—") + "/10</span></td>" +
+        "<td style=font-size:0.75rem;>" + (a.aiCategory || "—") + "</td>" +
+        "<td>" + status + "</td></tr>";
+    }).join("");
+    var pagBtns = "";
+    var prevDisabled = data.page <= 1 ? "opacity:0.3;pointer-events:none;" : "cursor:pointer;";
+    var nextDisabled = data.page >= data.pages ? "opacity:0.3;pointer-events:none;" : "cursor:pointer;";
+    pagBtns += "<button class=clear-btn style=" + prevDisabled + " onclick=\"articlePage=1;loadArticles()\">«</button>";
+    pagBtns += "<button class=clear-btn style=" + prevDisabled + " onclick=\"articlePage--;loadArticles()\">‹</button>";
+    var startP = Math.max(1, data.page - 2);
+    var endP = Math.min(data.pages, data.page + 2);
+    for (var p = startP; p <= endP; p++) {
+      var active = p === data.page ? "background:#e8354a;color:#fff;border-color:#e8354a;" : "cursor:pointer;";
+      pagBtns += "<button class=clear-btn style=\"" + active + "min-width:32px;\" onclick=\"articlePage=" + p + ";loadArticles()\">" + p + "</button>";
+    }
+    pagBtns += "<button class=clear-btn style=" + nextDisabled + " onclick=\"articlePage++;loadArticles()\">›</button>";
+    pagBtns += "<button class=clear-btn style=" + nextDisabled + " onclick=\"articlePage=" + data.pages + ";loadArticles()\">»</button>";
+    pagination.innerHTML = "<span>Page " + data.page + " of " + data.pages + " (" + data.total + " articles)</span>" +
+      "<div style=display:flex;gap:0.25rem;>" + pagBtns + "</div>";
+  } catch(e) {
+    body.innerHTML = "<tr><td colspan=5 style=text-align:center;padding:2rem;color:#e8354a;>Failed to load articles.</td></tr>";
+  }
+}
+
+document.getElementById("articleSearch").addEventListener("input", function() {
+  clearTimeout(articleSearchTimer);
+  articleSearchTimer = setTimeout(function() { articlePage = 1; loadArticles(); }, 300);
+});
+document.getElementById("articleLimit").addEventListener("change", function() {
+  articlePage = 1; loadArticles();
+});
+document.getElementById("articleFrom").addEventListener("change", function() {
+  articlePage = 1; loadArticles();
+});
+document.getElementById("articleTo").addEventListener("change", function() {
+  articlePage = 1; loadArticles();
+});
+
+loadArticles();
 
 async function runMonitor() {
   const btn = document.querySelector('.run-btn');

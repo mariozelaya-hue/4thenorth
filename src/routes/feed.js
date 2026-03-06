@@ -113,7 +113,7 @@ router.post("/stories/:id/like", auth, async (req, res) => {
       res.json({ liked: true });
     }
   } catch(e) {
-    res.status(500).json({ error: "Failed" });
+    console.error("LIKE ERROR:", e.message, "userId:", req.user?.id, "storyId:", req.params.id); res.status(500).json({ error: "Failed" });
   }
 });
 router.get('/feed/search', async (req, res) => {

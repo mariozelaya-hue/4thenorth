@@ -531,6 +531,12 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .comment-submit{background:#e8354a;color:#fff;border:none;border-radius:20px;padding:0.5rem 1.25rem;font-size:0.8rem;font-weight:700;cursor:pointer;}
 .comment-submit:hover{background:#c82d3e;}
 .comment-empty{color:var(--text3);font-size:0.875rem;text-align:center;padding:1rem 0;}
+.comment-replies{margin-left:1.5rem;border-left:2px solid var(--border);padding-left:0.75rem;margin-top:0.25rem;}
+.comment-replies.collapsed{display:none;}
+.view-replies-btn{background:none;border:none;cursor:pointer;color:var(--accent,#e8354a);font-size:0.75rem;font-weight:700;padding:0.3rem 0;margin-top:0.2rem;display:flex;align-items:center;gap:0.3rem;}
+.view-replies-btn:hover{text-decoration:underline;}
+.comment-reply .comment-avatar{width:24px;height:24px;font-size:0.65rem;}
+.comment-reply{padding:0.5rem 0;}
 
 .share-menu{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:0.4rem;min-width:190px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
 .share-menu-item{display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;border-radius:8px;cursor:pointer;color:var(--text2);font-size:0.875rem;font-weight:500;transition:all 0.15s;}
@@ -1045,37 +1051,53 @@ async function loadComments(storyId) {
   if (!list) return;
   list.innerHTML = '<div class="comment-empty">Loading...</div>';
   try {
-    const res = await fetch('/api/comments/' + storyId);
-    const data = await res.json();
-    if (!data.comments || data.comments.length === 0) {
-      list.innerHTML = '<div class="comment-empty">No comments yet. Be the first!</div>';
-      return;
+    function buildComment(c, depth) {
+      depth = depth || 0;
+      var maxIndent = 4;
+      var isReply = depth > 0;
+      var hasReplies = c.replies && c.replies.length > 0;
+      var repliesHtml = "";
+      if (hasReplies) {
+        var collapsed = depth === 0 ? " collapsed" : "";
+        var replyItems = c.replies.map(function(r) { return buildComment(r, depth + 1); }).join("");
+        var toggleBtn = depth === 0 ? "<button class=\"view-replies-btn\" onclick=\"toggleReplies(this)\">▸ View " + c.replies.length + " repl" + (c.replies.length === 1 ? "y" : "ies") + "</button>" : "";
+        repliesHtml = toggleBtn + "<div class=\"comment-replies" + collapsed + "\">" + replyItems + "</div>";
+      }
+      var indent = depth >= maxIndent ? "margin-left:0;" : "";
+      return "<div class=\"comment-item" + (isReply ? " comment-reply" : "") + "\" style=\"" + indent + "\">" +
+        "<div class=\"comment-avatar\" style=\"background:" + (c.user.avatarColor || "linear-gradient(135deg,#e8354a,#c82d3e)") + ";\">" + c.user.username[0].toUpperCase() + "</div>" +
+        "<div class=\"comment-body-wrap\">" +
+        "<div class=\"comment-header\"><span class=\"comment-author\">" + c.user.username + "</span><span class=\"comment-time\">" + getTimeAgo(c.createdAt) + "</span></div>" +
+        "<div class=\"comment-text\">" + c.body + "</div>" +
+        "<div class=\"comment-actions\">" +
+        "<div class=\"comment-vote\">" +
+        "<button class=\"comment-vote-btn up\" onclick=\"voteComment(this,'" + c.id + "',1)\">▲</button>" +
+        "<span class=\"comment-vote-count\">" + (c.likes || 0) + "</span>" +
+        "<button class=\"comment-vote-btn down\" onclick=\"voteComment(this,'" + c.id + "',-1)\">▼</button>" +
+        "</div>" +
+        "<button class=\"comment-reply-btn\" onclick=\"toggleReply(this,'" + c.id + "','" + storyId + "')\">Reply</button>" +
+        (currentUser && currentUser.id === c.userId ? "<button class=\"comment-reply-btn\" style=\"color:#e8354a\" onclick=\"deleteComment('" + c.id + "','" + storyId + "')\">Delete</button>" : "") +
+        "</div>" +
+        repliesHtml +
+        "</div></div>";
     }
-    function buildComment(c, isReply) {
-      const replies = (!isReply && c.replies && c.replies.length) 
-        ? '<div class="comment-replies">' + c.replies.map(r => buildComment(r, true)).join('') + '</div>' 
-        : '';
-      return '<div class="comment-item' + (isReply ? ' comment-reply' : '') + '">' +
-        '<div class="comment-avatar">' + c.user.username[0].toUpperCase() + '</div>' +
-        '<div class="comment-body-wrap">' +
-        '<div class="comment-header"><span class="comment-author">' + c.user.username + '</span><span class="comment-time">' + getTimeAgo(c.createdAt) + '</span></div>' +
-        '<div class="comment-text">' + c.body + '</div>' +
-        '<div class="comment-actions">' +
-        '<div class="comment-vote">' +
-        '<button class="comment-vote-btn up" onclick="voteComment(this,\'' + c.id + '\',1)">▲</button>' +
-        '<span class="comment-vote-count">' + (c.likes || 0) + '</span>' +
-        '<button class="comment-vote-btn down" onclick="voteComment(this,\'' + c.id + '\',-1)">▼</button>' +
-        '</div>' +
-        (isReply ? '' : '<button class="comment-reply-btn" onclick="toggleReply(this,\'' + c.id + '\',\'' + storyId + '\')">Reply</button>') +
-        (currentUser && currentUser.id === c.userId ? '<button class="comment-reply-btn" style="color:#e8354a" onclick="deleteComment(\'' + c.id + '\',\'' + storyId + '\')">Delete</button>' : '') +
-        '</div>' +
-        replies +
-        '</div></div>';
-    }
-    list.innerHTML = '<div class="comment-count-label">' + data.comments.length + ' comment' + (data.comments.length !== 1 ? 's' : '') + '</div>' +
-      data.comments.map(c => buildComment(c, false)).join('');
+    list.innerHTML = "<div class=\"comment-count-label\">" + data.comments.length + " comment" + (data.comments.length !== 1 ? "s" : "") + "</div>" +
+      data.comments.map(function(c) { return buildComment(c, 0); }).join("");
   } catch(e) {
     list.innerHTML = '<div class="comment-empty">Failed to load comments.</div>';
+  }
+}
+
+function toggleReplies(btn) {
+  var replies = btn.nextElementSibling;
+  if (!replies) return;
+  var isHidden = replies.classList.contains("collapsed");
+  replies.classList.toggle("collapsed");
+  if (isHidden) {
+    btn.innerHTML = "▾ Hide replies";
+  } else {
+    var count = replies.querySelectorAll(":scope > .comment-item").length;
+    btn.innerHTML = "▸ View " + count + " repl" + (count === 1 ? "y" : "ies");
   }
 }
 
@@ -1667,9 +1689,8 @@ function showExplore(term) {
 }
 
 function restoreLikeStates() {
-  const token = localStorage.getItem("cp_token");
-  if (!token || !currentUser) return;
-  fetch("/api/likes", { headers: { } })
+  if (!currentUser) return;
+  fetch("/api/likes", { credentials: "include" })
     .then(r => r.json())
     .then(data => {
       if (!data.storyIds) return;
@@ -1687,9 +1708,8 @@ function restoreLikeStates() {
 }
 
 function restoreSaveStates() {
-  const token = localStorage.getItem("cp_token");
-  if (!token || !currentUser) return;
-  fetch("/api/saves", { headers: { } })
+  if (!currentUser) return;
+  fetch("/api/saves", { credentials: "include" })
     .then(r => r.json())
     .then(data => {
       if (!data.stories) return;
@@ -1761,7 +1781,7 @@ async function showLiked(el) {
   const container = document.getElementById("feedContainer");
   container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Loading liked stories...</div>';
   try {
-    const res = await fetch("/api/likes", { headers: { } });
+    const res = await fetch("/api/likes", { credentials: "include" });
     const data = await res.json();
     if (!data.storyIds || data.storyIds.length === 0) {
       container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">No liked stories yet.</div>';
@@ -1809,8 +1829,8 @@ async function showLiked(el) {
     <div class="color-picker" id="colorPicker"></div>
     <div class="settings-label">Change Username</div>
     <input class="settings-input" id="settingsUsername" placeholder="New username">
-    <div class="settings-label">Change Password</div>
-    <input class="settings-input" id="settingsPassword" type="password" placeholder="New password (leave blank to keep)">
+    <div class="settings-label" id="passwordLabel">Change Password</div>
+    <input class="settings-input" id="settingsPassword" type="password" placeholder="New password (leave blank to keep)"><div id="passwordHint" style="font-size:0.72rem;color:var(--text3);margin-top:-0.75rem;margin-bottom:1rem;"></div>
     <button class="settings-save" onclick="saveSettings()">Save Changes</button>
   </div>
 </div>
@@ -1840,6 +1860,18 @@ function openSettings() {
   selectedAvatarColor = currentColor;
   document.getElementById("settingsUsername").value = currentUser?.username || "";
   document.getElementById("settingsPassword").value = "";
+  const isGoogleOnly = currentUser?.avatarUrl?.startsWith("http") || (!localStorage.getItem("cp_token") && currentUser);
+  const pwLabel = document.getElementById("passwordLabel");
+  const pwHint = document.getElementById("passwordHint");
+  fetch("/api/auth/me-full", { credentials: "include" }).then(r => r.json()).then(d => {
+    if (d.hasPassword) {
+      pwLabel.textContent = "Change Password";
+      pwHint.textContent = "";
+    } else {
+      pwLabel.textContent = "Set Password";
+      pwHint.textContent = "Add a password to also log in with email";
+    }
+  }).catch(() => {});
 }
 
 function closeSettings() {
@@ -1858,14 +1890,16 @@ async function saveSettings() {
   try {
     const res = await fetch("/api/auth/update", {
       method: "PUT",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
     const data = await res.json();
     if (data.error) { showToast(data.error, "error"); return; }
-    localStorage.setItem("cp_token", data.token);
-    localStorage.setItem("cp_user", JSON.stringify(data.user));
-    currentUser = data.user;
+    if (data.user) {
+      localStorage.setItem("cp_user", JSON.stringify(data.user));
+      currentUser = data.user;
+    }
     updateAuthUI();
     closeSettings();
     showToast("✅ Settings saved!");

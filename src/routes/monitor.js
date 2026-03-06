@@ -87,6 +87,35 @@ router.delete('/cache', auth, async (req, res) => {
   }
 });
 
+
+// GET /admin/monitor/articles - search and paginate articles
+router.get("/articles", auth, async (req, res) => {
+  try {
+    const { search, limit = 50, page = 1, from, to } = req.query;
+    const take = Math.min(parseInt(limit) || 50, 200);
+    const skip = (Math.max(parseInt(page) || 1, 1) - 1) * take;
+    const conditions = [];
+    if (search) {
+      conditions.push({ OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { sourceName: { contains: search, mode: "insensitive" } },
+        { aiCategory: { contains: search, mode: "insensitive" } },
+        { aiCommentary: { contains: search, mode: "insensitive" } },
+      ] });
+    }
+    if (from) conditions.push({ createdAt: { gte: new Date(from) } });
+    if (to) conditions.push({ createdAt: { lte: new Date(to + "T23:59:59Z") } });
+    const where = conditions.length ? { AND: conditions } : {};
+    const [articles, total] = await Promise.all([
+      prisma.monitorCache.findMany({ where, orderBy: { createdAt: "desc" }, take, skip }),
+      prisma.monitorCache.count({ where })
+    ]);
+    res.json({ articles, total, page: parseInt(page) || 1, limit: take, pages: Math.ceil(total / take) });
+  } catch (e) {
+    console.error("Articles search error:", e);
+    res.status(500).json({ error: "Failed" });
+  }
+});
 module.exports = router;
 
 // GET /admin/monitor/sources - list all sources

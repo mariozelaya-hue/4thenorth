@@ -56,6 +56,48 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// GET /api/auth/me-full
+router.get("/me-full", async (req, res) => {
+  try {
+    const userId = req.session?.userId || req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(401).json({ error: "User not found" });
+    res.json({ hasPassword: !!user.passwordHash, hasGoogle: !!user.googleId });
+  } catch (err) {
+    res.status(500).json({ error: "Failed" });
+  }
+});
+
+// PUT /api/auth/update
+router.put("/update", async (req, res) => {
+  try {
+    const userId = req.session?.userId || req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(401).json({ error: "User not found" });
+    const { username, password, avatarColor } = req.body;
+    const updates = {};
+    if (username && username !== user.username) {
+      const taken = await prisma.user.findUnique({ where: { username } });
+      if (taken && taken.id !== user.id) return res.status(409).json({ error: "Username already taken" });
+      updates.username = username;
+    }
+    if (password) {
+      if (password.length < 6) return res.status(400).json({ error: "Password must be at least 6 characters" });
+      updates.passwordHash = await bcrypt.hash(password, 10);
+    }
+    if (avatarColor) updates.avatarUrl = avatarColor;
+    if (Object.keys(updates).length === 0) return res.json({ user: { id: user.id, email: user.email, username: user.username, avatarUrl: user.avatarUrl } });
+    const updated = await prisma.user.update({ where: { id: userId }, data: updates });
+    req.session.userId = updated.id;
+    res.json({ user: { id: updated.id, email: updated.email, username: updated.username, avatarUrl: updated.avatarUrl } });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ error: "Failed to update" });
+  }
+});
+
 // POST /api/auth/forgot-password
 router.post('/forgot-password', async (req, res) => {
   res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });

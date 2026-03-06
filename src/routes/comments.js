@@ -7,16 +7,29 @@ const auth = require('../middleware/auth');
 
 router.get('/:storyId', async (req, res) => {
   try {
+    // Fetch top-level comments with nested replies (2 levels deep)
     const comments = await prisma.comment.findMany({
       where: { storyId: req.params.storyId, parentId: null },
       include: {
         user: { select: { username: true } },
         replies: {
-          include: { user: { select: { username: true } } },
-          orderBy: { createdAt: 'asc' }
+          include: {
+            user: { select: { username: true } },
+            replies: {
+              include: {
+                user: { select: { username: true } },
+                replies: {
+                  include: { user: { select: { username: true } } },
+                  orderBy: { createdAt: "asc" }
+                }
+              },
+              orderBy: { createdAt: "asc" }
+            }
+          },
+          orderBy: { createdAt: "asc" }
         }
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: 50
     });
     res.json({ comments });
