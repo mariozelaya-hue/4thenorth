@@ -1007,7 +1007,7 @@ async function likeStory(storyId, pill) {
   const countEl = pill.querySelector(".hcount");
   const btn = pill.querySelector(".hbtn");
   const svg = pill.querySelector(".hsvg");
-  const liked = pill.classList.contains("liked");
+  const liked = btn.classList.contains("liked");
   try {
     const res = await fetch("/api/stories/" + storyId + "/like", {
       method: 'POST',
@@ -1016,13 +1016,13 @@ async function likeStory(storyId, pill) {
     });
     const data = await res.json();
     if (data.liked) {
-      pill.classList.add("liked");
+      btn.classList.add("liked");
       btn.style.color = "#e8354a";
       svg.style.fill = "var(--red)";
       svg.style.stroke = "var(--red)";
       countEl.textContent = fmtV(parseV(countEl.textContent) + 1);
     } else {
-      pill.classList.remove("liked");
+      btn.classList.remove("liked");
       btn.style.color = "";
       svg.style.fill = "none";
       svg.style.stroke = "currentColor";
