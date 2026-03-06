@@ -1,39 +1,35 @@
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'canadianpulse-secret-key';
 
-function authMiddleware(req, res, next) {
-  // Check for token in cookie, Authorization header, or query param
-  let token = req.cookies?.token 
-    || req.headers.authorization?.replace('Bearer ', '')
-    || req.query.token;
-
-  // Also check session cookie set during login
-  if (!token && req.headers.cookie) {
-    const cookies = req.headers.cookie.split(';').reduce((acc, c) => {
-      const [key, val] = c.trim().split('=');
-      acc[key] = val;
-      return acc;
-    }, {});
-    token = cookies.token;
+module.exports = async function auth(req, res, next) {
+  // Try JWT from Authorization header
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token) {
+    try {
+      req.user = jwt.verify(token, JWT_SECRET);
+      req.admin = req.user;
+      return next();
+    } catch(e) {}
   }
 
-  if (!token) {
-    // If it's a page request (not API), redirect to login
-    if (req.accepts('html')) {
-      return res.redirect('/admin/login');
-    }
-    return res.status(401).json({ error: 'Authentication required' });
+  // Try JWT from cookie (admin)
+  const cookieToken = req.cookies?.token;
+  if (cookieToken) {
+    try {
+      req.user = jwt.verify(cookieToken, JWT_SECRET);
+      req.admin = req.user;
+      return next();
+    } catch(e) {}
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = decoded;
-    next();
-  } catch (err) {
-    if (req.accepts('html')) {
-      return res.redirect('/admin/login');
-    }
-    return res.status(401).json({ error: 'Invalid or expired token' });
+  // Try session (Google OAuth / email login)
+  if (req.session?.userId) {
+    req.user = { id: req.session.userId };
+    return next();
   }
-}
 
-module.exports = authMiddleware;
+  // Try passport user
+  if (req.user) return next();
+
+  return res.status(401).json({ error: 'Login required' });
+};

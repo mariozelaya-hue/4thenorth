@@ -1,23 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const prisma = require('../db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'canadianpulse-secret-key';
 
-function authMiddleware(req, res, next) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Login required' });
-  try {
-    req.user = jwt.verify(token, JWT_SECRET);
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
+const auth = require('../middleware/auth');
 
 // POST /api/saves/:storyId - toggle save
-router.post('/:storyId', authMiddleware, async (req, res) => {
+router.post('/:storyId', auth, async (req, res) => {
   try {
     const existing = await prisma.savedStory.findUnique({
       where: { userId_storyId: { userId: req.user.id, storyId: req.params.storyId } }
@@ -35,7 +24,19 @@ router.post('/:storyId', authMiddleware, async (req, res) => {
 });
 
 // GET /api/saves - get all saved stories for current user
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/ids', auth, async (req, res) => {
+  try {
+    const saved = await prisma.savedStory.findMany({
+      where: { userId: req.user.id },
+      select: { storyId: true }
+    });
+    res.json({ storyIds: saved.map(s => s.storyId) });
+  } catch(err) {
+    res.status(500).json({ error: 'Failed' });
+  }
+});
+
+router.get('/', auth, async (req, res) => {
   try {
     const saved = await prisma.savedStory.findMany({
       where: { userId: req.user.id },

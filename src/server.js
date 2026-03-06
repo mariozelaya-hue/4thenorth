@@ -1,4 +1,7 @@
 require('dotenv').config();
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const passport = require('./config/passport');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -11,9 +14,13 @@ const feedRoutes = require('./routes/feed');
 const adminRoutes = require('./routes/admin');
 const newsletterRoutes = require('./routes/newsletter');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
 const commentRoutes = require('./routes/comments');
 const savesRoutes = require('./routes/saves');
 const trendsRoutes = require('./routes/trends');
+const monitorRoutes = require('./routes/monitor');
+const cron = require('node-cron');
+const { runMonitor } = require('./services/monitor');
 const prisma = require('./db');
 
 const app = express();
@@ -29,9 +36,18 @@ app.set('views', path.join(__dirname, 'views'));
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'canadianpulse_dev_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(morgan('short'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true
@@ -52,11 +68,13 @@ app.use('/api/', generalLimiter);
 // Routes
 app.use('/api', feedRoutes);
 app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/saves', savesRoutes);
 app.use('/api/trends', trendsRoutes);
 app.use('/admin', adminRoutes);
+app.use('/admin/monitor', monitorRoutes);
+app.use('/auth', authRoutes);
+app.use('/api/auth', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -76,6 +94,10 @@ app.get('/', async (req, res) => {
   }
 });
 
+// Legal pages
+app.get("/terms", (req, res) => res.render("terms"));
+app.get("/privacy", (req, res) => res.render("privacy"));
+
 // Reset password page
 app.get("/reset-password", (req, res) => {
   res.render("reset-password");
@@ -85,6 +107,12 @@ app.get("/reset-password", (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
+});
+
+// Run monitor every 4 hours
+cron.schedule('0 */4 * * *', () => {
+  console.log('[Cron] Running scheduled monitor...');
+  runMonitor().catch(err => console.error('[Cron] Monitor error:', err));
 });
 
 app.listen(PORT, () => {

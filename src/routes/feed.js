@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
+const auth = require('../middleware/auth');
 const NodeCache = require('node-cache');
 
 const cache = new NodeCache({ stdTTL: 10 }); // 10 second cache
@@ -53,6 +54,7 @@ router.get('/feed', async (req, res) => {
           isBreaking: true,
           cardStyle: true,
           tags: true,
+          _count: { select: { comments: true } },
         },
       }),
       prisma.story.count({ where }),
@@ -95,15 +97,9 @@ router.get('/stories/:id', async (req, res) => {
 module.exports = router;
 
 // POST /api/stories/:id/like
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'canadianpulse-secret-key';
-
-
-router.post("/stories/:id/like", async (req, res) => {
+router.post("/stories/:id/like", auth, async (req, res) => {
   try {
-    const token = req.headers.authorization?.replace("Bearer ", "");
-    if (!token) return res.status(401).json({ error: "Login required" });
-    const user = jwt.verify(token, JWT_SECRET);
+    const user = req.user;
     const existing = await prisma.storyLike.findUnique({
       where: { userId_storyId: { userId: user.id, storyId: req.params.id } }
     });
@@ -154,23 +150,27 @@ router.get('/feed/search', async (req, res) => {
 router.get('/stories/:id/liked', async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.json({ liked: false });
-    const user = jwt.verify(token, JWT_SECRET);
+    const user = req.session?.userId ? { id: req.session.userId } : null;
+    if (!user && !token) return res.json({ liked: false });
+    const userId = user?.id || (() => { try { const jwt = require('jsonwebtoken'); return jwt.verify(token, process.env.JWT_SECRET || 'canadianpulse-secret-key').id; } catch(e) { return null; } })();
+    if (!userId) return res.json({ liked: false });
     const like = await prisma.storyLike.findUnique({
-      where: { userId_storyId: { userId: user.id, storyId: req.params.id } }
+      where: { userId_storyId: { userId, storyId: req.params.id } }
     });
-    res.json({ liked: !!like });
+    return res.json({ liked: !!like });
   } catch(e) {
-    res.json({ liked: false });
+    return res.json({ liked: false });
   }
 });
+
 
 // GET /api/likes - get all liked story IDs for current user
 router.get('/likes', async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.json({ storyIds: [] });
-    const user = jwt.verify(token, JWT_SECRET);
+    const userId = req.session?.userId || (() => { try { const jwt = require('jsonwebtoken'); return jwt.verify(token, process.env.JWT_SECRET || 'canadianpulse-secret-key').id; } catch(e) { return null; } })();
+    if (!userId) return res.json({ storyIds: [] });
+    const user = { id: userId };
     const likes = await prisma.storyLike.findMany({
       where: { userId: user.id },
       select: { storyId: true }

@@ -1,20 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const prisma = require('../db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'canadianpulse-secret-key';
 
-function authMiddleware(req, res, next) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Login required' });
-  try {
-    req.user = jwt.verify(token, JWT_SECRET);
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
+const auth = require('../middleware/auth');
 
 router.get('/:storyId', async (req, res) => {
   try {
@@ -36,7 +25,7 @@ router.get('/:storyId', async (req, res) => {
   }
 });
 
-router.post('/:storyId', authMiddleware, async (req, res) => {
+router.post('/:storyId', auth, async (req, res) => {
   try {
     const { body, parentId } = req.body;
     if (!body || body.trim().length === 0) return res.status(400).json({ error: 'Comment cannot be empty' });
@@ -52,7 +41,7 @@ router.post('/:storyId', authMiddleware, async (req, res) => {
   }
 });
 
-router.delete('/:commentId', authMiddleware, async (req, res) => {
+router.delete('/:commentId', auth, async (req, res) => {
   try {
     const comment = await prisma.comment.findUnique({ where: { id: req.params.commentId } });
     if (!comment) return res.status(404).json({ error: 'Comment not found' });
