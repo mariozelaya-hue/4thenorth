@@ -1676,10 +1676,9 @@ function restoreLikeStates() {
       data.storyIds.forEach(id => {
         const pill = document.getElementById("like-" + id);
         if (pill) {
-          pill.classList.add("liked");
           const btn = pill.querySelector(".hbtn");
           const svg = pill.querySelector(".hsvg");
-          if (btn) btn.style.color = "#e8354a";
+          if (btn) btn.classList.add("liked");
           if (svg) { svg.style.fill = "var(--red)"; svg.style.stroke = "var(--red)"; }
         }
       });
